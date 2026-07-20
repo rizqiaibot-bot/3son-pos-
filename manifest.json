@@ -1,0 +1,18 @@
+{
+  "name": "3SON POS - Frozen Food",
+  "short_name": "3SON POS",
+  "description": "Point of Sale Frozen Food Bekasi by 3SON",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F8FA",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "assets/img/default-product.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

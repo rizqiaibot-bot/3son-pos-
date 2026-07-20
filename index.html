@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2563EB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="3SON POS">
+  <title>3SON POS - Point of Sale Frozen Food</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/img/default-product.svg">
+  <link rel="apple-touch-icon" href="assets/img/default-product.svg">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ======================================================
+       POS CONTAINER (Full-Height Layout)
+       ====================================================== -->
+  <div class="pos-container">
+
+    <!-- ======================================================
+         MAIN AREA (Header + Body)
+         ====================================================== -->
+    <div class="main-area">
+
+      <!-- HEADER -->
+      <header class="pos-header">
+        <!-- Left: Logo + Brand -->
+        <div class="header-left">
+          <div class="header-logo">3S</div>
+          <div class="header-brand">
+            <h2>3SON POS</h2>
+            <span>Frozen Food Bekasi</span>
+          </div>
+        </div>
+
+        <!-- Center: Search -->
+        <div class="header-center">
+          <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="searchProduct" placeholder="Cari produk... (F2)" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Right: DateTime + Cashier -->
+        <div class="header-right">
+          <div class="datetime">
+            <div class="date" id="headerDate">Memuat...</div>
+            <div class="time" id="headerTime">--:--:--</div>
+          </div>
+          <div class="cashier-info">
+            <i class="bi bi-person-circle"></i>
+            <span id="cashierName">Rizkin</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- POS BODY -->
+      <div class="pos-body">
+
+        <!-- CONTENT: Product Grid -->
+        <main class="content">
+          <div class="products-header">
+            <h3>Daftar Produk</h3>
+            <span class="product-count" id="productCount">0 produk</span>
+          </div>
+
+          <div class="products-grid" id="productsGrid"></div>
+        </main>
+
+      </div><!-- /pos-body -->
+
+    </div><!-- /main-area -->
+
+    <!-- ======================================================
+         CART PANEL (Right Side)
+         ====================================================== -->
+    <aside class="cart-panel">
+      <!-- Cart Header -->
+      <div class="cart-header">
+        <h3>
+          <i class="bi bi-cart3"></i> Keranjang
+          <span class="cart-badge" id="cartBadge">0</span>
+        </h3>
+      </div>
+
+      <!-- Cart Items -->
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="96" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="2"/>
+            <path d="M65 75 L85 55 L135 55 L155 75 L175 75 L165 160 L55 160 L45 75 Z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M65 75 L100 40 L135 75" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="80" cy="110" r="5" fill="#fff"/>
+            <circle cx="120" cy="110" r="5" fill="#fff"/>
+            <line x1="75" y1="130" x2="145" y2="130" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <p class="empty-title">Keranjang Kosong</p>
+          <p class="empty-desc">Klik produk atau ketuk tombol + untuk menambahkan ke keranjang</p>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="cartSubtotal">Rp 0</span>
+        </div>
+        <div class="summary-row">
+          <span>Diskon (Rp)</span>
+          <input type="number" id="cartDiskon" placeholder="0" min="0">
+        </div>
+        <div class="summary-row">
+          <span>Ongkir (Rp)</span>
+          <input type="number" id="cartOngkir" placeholder="0" min="0">
+        </div>
+        <div class="grand-total">
+          <span class="grand-total-label">Grand Total</span>
+          <span class="grand-total-value" id="cartGrandTotal">Rp 0</span>
+        </div>
+
+        <div class="cart-actions">
+          <button class="btn-cart-action btn-clear" id="btnClearCart" title="F4">
+            <i class="bi bi-trash3"></i> Kosongkan
+          </button>
+          <button class="btn-cart-action btn-pay" id="btnPay" disabled title="F9">
+            <i class="bi bi-credit-card"></i> Bayar (F9)
+          </button>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /pos-container -->
+
+  <!-- ======================================================
+       SHORTCUT HINT
+       ====================================================== -->
+  <div class="shortcut-hint">
+    <span><kbd>F2</kbd> Cari</span>
+    <span><kbd>F4</kbd> Kosongkan</span>
+    <span><kbd>F8</kbd> Hold</span>
+    <span><kbd>F9</kbd> Bayar</span>
+    <span><kbd>ESC</kbd> Tutup</span>
+  </div>
+
+  <!-- ======================================================
+       PAYMENT MODAL
+       ====================================================== -->
+  <div class="modal fade payment-modal" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5><i class="bi bi-credit-card-fill"></i> Pembayaran</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Grand Total -->
+          <div class="payment-total-display">
+            <div class="label">Grand Total</div>
+            <div class="amount" id="modalGrandTotal">Rp 0</div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="payment-method">
+            <button class="method-btn active" data-method="tunai">
+              <i class="bi bi-cash-stack"></i>
+              Tunai
+            </button>
+            <button class="method-btn" data-method="qris">
+              <i class="bi bi-qr-code-scan"></i>
+              QRIS
+            </button>
+            <button class="method-btn" data-method="transfer">
+              <i class="bi bi-bank"></i>
+              Transfer
+            </button>
+          </div>
+
+          <!-- Payment Input -->
+          <div class="payment-input-group">
+            <label>Jumlah Bayar</label>
+            <input type="number" id="inputBayar" placeholder="Masukkan jumlah bayar..." min="0" autocomplete="off">
+          </div>
+
+          <!-- Customer -->
+          <div class="payment-input-group">
+            <label>Nama Customer</label>
+            <input type="text" id="inputCustomer" placeholder="Nama customer / toko..." autocomplete="off">
+          </div>
+
+          <!-- Print Mode -->
+          <div class="payment-input-group">
+            <label>Mode Cetak</label>
+            <div class="print-mode-group">
+              <button class="print-mode-btn active" data-mode="a5">
+                <i class="bi bi-file-earmark-text"></i> Invoice A5
+              </button>
+              <button class="print-mode-btn" data-mode="thermal">
+                <i class="bi bi-receipt"></i> Thermal 80mm
+              </button>
+            </div>
+          </div>
+
+          <!-- Change Display -->
+          <div class="change-display">
+            <div class="label">Kembalian</div>
+            <div class="amount" id="changeAmount">Rp 0</div>
+          </div>
+
+          <!-- Actions -->
+          <div class="payment-actions">
+            <button class="btn-cart-action btn-clear" data-bs-dismiss="modal">
+              <i class="bi bi-x-lg"></i> Batal
+            </button>
+            <button class="btn-cart-action btn-pay" id="btnSavePayment" disabled style="background:var(--primary);color:#fff;flex:2">
+              <i class="bi bi-printer-fill"></i> Simpan & Print
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       PRINT CONTAINER (Hidden - used for printing)
+       ====================================================== -->
+  <div id="printContainer" class="print-container"></div>
+
+  <!-- ======================================================
+       MOBILE: Cart Bottom Sheet (Offcanvas from bottom)
+       ====================================================== -->
+  <div class="offcanvas offcanvas-bottom mobile-cart" tabindex="-1" id="mobileCartOffcanvas" style="height:70vh">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="fw-bold"><i class="bi bi-cart3"></i> Keranjang <span class="cart-badge ms-2" id="mobileCartBadge">0</span></h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0 d-flex flex-column">
+      <div class="cart-items flex-grow-1 overflow-auto" id="mobileCartItems">
+        <div class="cart-empty">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:90px;height:90px;opacity:0.3">
+            <circle cx="100" cy="100" r="96" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="2"/>
+            <path d="M65 75 L85 55 L135 55 L155 75 L175 75 L165 160 L55 160 L45 75 Z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M65 75 L100 40 L135 75" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="80" cy="110" r="5" fill="#fff"/>
+            <circle cx="120" cy="110" r="5" fill="#fff"/>
+            <line x1="75" y1="130" x2="145" y2="130" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <p class="empty-title">Keranjang Kosong</p>
+        </div>
+      </div>
+      <div class="cart-summary" id="mobileCartSummary">
+        <div class="summary-row"><span>Subtotal</span><span id="mobileCartSubtotal">Rp 0</span></div>
+        <div class="summary-row"><span>Diskon</span><input type="number" id="mobileCartDiskon" placeholder="0" min="0"></div>
+        <div class="summary-row"><span>Ongkir</span><input type="number" id="mobileCartOngkir" placeholder="0" min="0"></div>
+        <div class="grand-total"><span class="grand-total-label">Grand Total</span><span class="grand-total-value" id="mobileCartGrandTotal">Rp 0</span></div>
+        <div class="cart-actions">
+          <button class="btn-cart-action btn-clear" id="btnMobileClearCart"><i class="bi bi-trash3"></i> Kosongkan</button>
+          <button class="btn-cart-action btn-pay" id="btnMobilePay" disabled><i class="bi bi-credit-card"></i> Bayar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       MOBILE: Floating Action Button (Cart)
+       ====================================================== -->
+  <button class="mobile-fab" id="mobileFab" data-bs-toggle="offcanvas" data-bs-target="#mobileCartOffcanvas">
+    <i class="bi bi-cart3"></i>
+    <span class="mobile-fab-badge" id="mobileFabBadge">0</span>
+  </button>
+
+  <!-- ======================================================
+       MOBILE: Bottom Navigation
+       ====================================================== -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav-item active" data-nav="home">
+      <i class="bi bi-house-fill"></i>
+      <span>Home</span>
+    </button>
+    <button class="bottom-nav-item" data-nav="keranjang" id="bottomNavCart">
+      <i class="bi bi-cart-fill"></i>
+      <span>Keranjang</span>
+    </button>
+    <button class="bottom-nav-item" data-nav="bayar" id="bottomNavPay">
+      <i class="bi bi-credit-card-fill"></i>
+      <span>Bayar</span>
+    </button>
+  </nav>
+
+  <!-- ======================================================
+       SCRIPTS
+       ====================================================== -->
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Application -->
+  <script src="assets/js/app.js"></script>
+
+  <!-- PWA: Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
+  </script>
+
+</body>
+</html>
