@@ -52,8 +52,7 @@ body {
   width: 44px; height: 44px; border-radius: 12px;
   background: url('../../logo.png') center/cover no-repeat;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0; text-indent: -9999px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);
-  overflow: hidden;
+  font-size: 0; text-indent: -9999px; overflow: hidden;
 }
 .header-brand h2 { font-size: 19px; font-weight: 700; line-height: 1.15; color: var(--dark); letter-spacing: -0.3px; }
 .header-brand span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
@@ -112,8 +111,7 @@ body {
 }
 .product-img-wrap {
   height: 72px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #FAFBFC 0%, #F0F1F3 100%);
-  overflow: hidden; flex-shrink: 0;
+  background: #F3F4F6; overflow: hidden; flex-shrink: 0;
 }
 .product-img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -466,8 +464,7 @@ body {
 }
 .admin-product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .admin-product-card-img {
-  width: 100%; aspect-ratio: 1/1; object-fit: contain; background: linear-gradient(180deg, #FAFBFC, #F0F1F3);
-  padding: 10px;
+  width: 100%; aspect-ratio: 1/1; object-fit: contain; background: #F3F4F6; padding: 10px;
 }
 .admin-product-card-body { padding: 10px 12px 14px; }
 .admin-product-card-name {
