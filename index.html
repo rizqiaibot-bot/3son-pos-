@@ -62,6 +62,9 @@
             <i class="bi bi-person-circle"></i>
             <span id="cashierName">Rizkin</span>
           </div>
+          <button class="btn-admin" id="btnAdmin" title="Kelola Produk">
+            <i class="bi bi-gear-fill"></i>
+          </button>
         </div>
       </header>
 
@@ -232,8 +235,93 @@
   </div>
 
   <!-- ======================================================
-       PRINT CONTAINER (Hidden - used for printing)
-       ====================================================== -->
+        ADMIN: Product Management Modal
+        ====================================================== -->
+  <div class="modal fade admin-modal" id="adminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5><i class="bi bi-gear-fill"></i> Kelola Produk</h5>
+          <div class="admin-header-actions">
+            <input type="text" id="adminSearch" class="admin-search-input" placeholder="Cari produk...">
+            <button class="btn btn-sm btn-outline-danger" id="btnResetAll" title="Reset semua produk ke default">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset Semua
+            </button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="admin-grid" id="adminProductGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+        ADMIN: Edit Product Sub-Modal
+        ====================================================== -->
+  <div class="modal fade admin-edit-modal" id="adminEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5><i class="bi bi-pencil-square"></i> Edit Produk</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="admin-edit-img-section">
+            <div class="admin-edit-img-wrap" id="adminEditImgWrap">
+              <img id="adminEditImg" src="" alt="Preview" class="admin-edit-img">
+              <div class="admin-edit-img-overlay">
+                <i class="bi bi-camera-fill"></i>
+                <span>Klik untuk upload foto</span>
+              </div>
+            </div>
+            <input type="file" id="adminImageInput" accept="image/*" hidden>
+            <button class="btn btn-sm btn-outline-secondary mt-2" id="btnRemoveImage">
+              <i class="bi bi-x-lg"></i> Hapus Foto
+            </button>
+          </div>
+          <input type="hidden" id="adminEditId">
+          <div class="admin-edit-field">
+            <label>Nama Produk</label>
+            <input type="text" id="adminEditNama" placeholder="Nama produk">
+          </div>
+          <div class="admin-edit-row">
+            <div class="admin-edit-field">
+              <label>Harga (Rp)</label>
+              <input type="number" id="adminEditHarga" placeholder="0" min="0">
+            </div>
+            <div class="admin-edit-field">
+              <label>Stok</label>
+              <input type="number" id="adminEditStok" placeholder="0" min="0">
+            </div>
+          </div>
+          <div class="admin-edit-row">
+            <div class="admin-edit-field">
+              <label>Kategori</label>
+              <select id="adminEditKategori"></select>
+            </div>
+            <div class="admin-edit-field admin-edit-favorit">
+              <label>&nbsp;</label>
+              <label class="favorit-check"><input type="checkbox" id="adminEditFavorit"> Favorit</label>
+            </div>
+          </div>
+          <div class="admin-edit-actions">
+            <button class="btn-cart-action btn-clear" data-bs-dismiss="modal">
+              <i class="bi bi-x-lg"></i> Batal
+            </button>
+            <button class="btn-cart-action btn-pay" id="btnSaveProduct" style="background:var(--primary);color:#fff;flex:2">
+              <i class="bi bi-check-lg"></i> Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+        PRINT CONTAINER (Hidden - used for printing)
+        ====================================================== -->
   <div id="printContainer" class="print-container"></div>
 
   <!-- ======================================================

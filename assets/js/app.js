@@ -29,6 +29,7 @@ class ProductManager {
     this.kategori = [];
     this.invoiceSlots = [];
     this.activeCategory = "favorit";
+    this._overrides = {};
   }
 
   async load() {
@@ -43,6 +44,46 @@ class ProductManager {
       console.warn("Fetch JSON gagal, gunakan data embed:", err.message);
       this._loadFallback();
     }
+    this._loadOverrides();
+    this._applyOverrides();
+  }
+
+  _loadOverrides() {
+    try {
+      const raw = localStorage.getItem("3son_product_overrides");
+      this._overrides = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      this._overrides = {};
+    }
+  }
+
+  _saveOverrides() {
+    localStorage.setItem("3son_product_overrides", JSON.stringify(this._overrides));
+  }
+
+  _applyOverrides() {
+    Object.keys(this._overrides).forEach(id => {
+      const prod = this.produk.find(p => p.id === id);
+      if (prod) Object.assign(prod, this._overrides[id]);
+    });
+  }
+
+  saveProduct(id, data) {
+    this._overrides[id] = { ...this._overrides[id], ...data };
+    this._saveOverrides();
+    const prod = this.produk.find(p => p.id === id);
+    if (prod) Object.assign(prod, data);
+  }
+
+  async resetOverrides() {
+    this._overrides = {};
+    localStorage.removeItem("3son_product_overrides");
+    await this.load();
+    return this;
+  }
+
+  getOverrides() {
+    return { ...this._overrides };
   }
 
   _loadFallback() {
@@ -449,6 +490,180 @@ class PrintManager {
 }
 
 // =====================================================
+// CONTROLLER: ProductAdmin - Admin Panel
+// =====================================================
+class ProductAdmin {
+  constructor(productManager, renderCallback) {
+    this.pm = productManager;
+    this.renderCallback = renderCallback;
+    this._editProd = null;
+    this._imageData = null;
+    this._eventsBound = false;
+  }
+
+  open() {
+    const modal = new bootstrap.Modal(document.getElementById("adminModal"));
+    modal.show();
+    this._renderGrid();
+    if (!this._eventsBound) { this._bindAdminEvents(); this._eventsBound = true; }
+  }
+
+  _renderGrid() {
+    const grid = document.getElementById("adminProductGrid");
+    const searchQ = (document.getElementById("adminSearch")?.value || "").toLowerCase().trim();
+    const overrides = this.pm.getOverrides();
+    let products = this.pm.produk.filter(p => {
+      if (!searchQ) return true;
+      return p.nama.toLowerCase().includes(searchQ);
+    });
+
+    if (products.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
+        <i class="bi bi-search" style="font-size:36px;opacity:0.3;display:block;margin-bottom:8px"></i>
+        <p style="font-weight:600;font-size:14px">Produk tidak ditemukan</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = products.map(p => {
+      const isOverridden = !!overrides[p.id];
+      const badge = isOverridden ? '<span class="admin-product-card-overridden">edited</span>' : '';
+      const catName = (this.pm.kategori.find(k => k.id === p.kategori) || {}).nama || p.kategori;
+      const showFav = p.favorit ? ' <span class="admin-product-card-fav">&#11088;</span>' : '';
+      return `<div class="admin-product-card" data-id="${p.id}" style="position:relative">
+        ${badge}
+        <img src="${p.gambar}" alt="${p.nama}" class="admin-product-card-img" loading="lazy"
+             onerror="this.src='assets/img/default-product.svg';this.style.objectFit='contain';this.style.padding='10px'">
+        <div class="admin-product-card-body">
+          <div class="admin-product-card-name" title="${p.nama}">${p.nama}${showFav}</div>
+          <div class="admin-product-card-meta">
+            <span class="admin-product-card-price">${formatRupiah(p.harga)}</span>
+            <span class="admin-product-card-category">${catName}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    grid.querySelectorAll(".admin-product-card").forEach(card => {
+      card.addEventListener("click", () => this._openEdit(card.dataset.id));
+    });
+  }
+
+  _bindAdminEvents() {
+    document.getElementById("adminSearch")?.addEventListener("input", () => this._renderGrid());
+
+    document.getElementById("adminModal")?.addEventListener("show.bs.modal", () => {
+      this._renderGrid();
+    });
+
+    document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
+      const searchInput = document.getElementById("adminSearch");
+      if (searchInput) searchInput.value = "";
+    });
+
+    document.getElementById("btnResetAll")?.addEventListener("click", async () => {
+      if (confirm("Reset SEMUA produk ke default? Semua perubahan foto, harga, dan nama akan hilang.")) {
+        await this.pm.resetOverrides();
+        this._renderGrid();
+        this.renderCallback();
+        this._showToast("Semua produk direset ke default");
+      }
+    });
+
+    document.getElementById("btnSaveProduct")?.addEventListener("click", () => this._saveEdit());
+
+    document.getElementById("adminImageInput")?.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        this._imageData = ev.target.result;
+        this._updateImagePreview();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("adminEditImgWrap")?.addEventListener("click", () => {
+      document.getElementById("adminImageInput")?.click();
+    });
+
+    document.getElementById("btnRemoveImage")?.addEventListener("click", () => {
+      this._imageData = null;
+      this._updateImagePreview();
+    });
+  }
+
+  _openEdit(id) {
+    this._editProd = this.pm.findById(id);
+    if (!this._editProd) return;
+    this._imageData = null;
+
+    document.getElementById("adminEditId").value = id;
+    document.getElementById("adminEditNama").value = this._editProd.nama;
+    document.getElementById("adminEditHarga").value = this._editProd.harga;
+    document.getElementById("adminEditStok").value = this._editProd.stok || 0;
+
+    const sel = document.getElementById("adminEditKategori");
+    sel.innerHTML = this.pm.kategori.filter(k => k.id !== "favorit").map(k =>
+      `<option value="${k.id}" ${this._editProd.kategori === k.id ? "selected" : ""}>${k.nama}</option>`
+    ).join("");
+
+    document.getElementById("adminEditFavorit").checked = this._editProd.favorit;
+
+    this._updateImagePreview();
+
+    const editModal = new bootstrap.Modal(document.getElementById("adminEditModal"));
+    editModal.show();
+  }
+
+  _updateImagePreview() {
+    const wrap = document.getElementById("adminEditImgWrap");
+    const img = document.getElementById("adminEditImg");
+    if (this._imageData) {
+      img.src = this._imageData;
+      wrap.classList.add("has-image");
+    } else if (this._editProd?.gambar) {
+      img.src = this._editProd.gambar;
+      wrap.classList.add("has-image");
+    } else {
+      img.src = "assets/img/default-product.svg";
+      wrap.classList.remove("has-image");
+    }
+  }
+
+  _saveEdit() {
+    const id = document.getElementById("adminEditId").value;
+    const nama = document.getElementById("adminEditNama").value.trim();
+    const harga = parseInt(document.getElementById("adminEditHarga").value) || 0;
+    const stok = parseInt(document.getElementById("adminEditStok").value) || 0;
+    const kategori = document.getElementById("adminEditKategori").value;
+    const favorit = document.getElementById("adminEditFavorit").checked;
+
+    if (!nama) { this._showToast("Nama produk tidak boleh kosong!"); return; }
+
+    const data = { nama, harga, stok, kategori, favorit };
+    if (this._imageData) data.gambar = this._imageData;
+
+    this.pm.saveProduct(id, data);
+    this._renderGrid();
+    this.renderCallback();
+
+    const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
+    editModal?.hide();
+
+    this._showToast("Produk " + nama + " berhasil disimpan!");
+  }
+
+  _showToast(msg) {
+    if (window.posApp && window.posApp._showToast) { window.posApp._showToast(msg); return; }
+    let toast = document.getElementById("toastMsg");
+    if (!toast) { toast = document.createElement("div"); toast.id = "toastMsg"; toast.className = "toast-msg"; document.body.appendChild(toast); }
+    toast.textContent = msg; toast.classList.add("show");
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => toast.classList.remove("show"), 1500);
+  }
+}
+
+// =====================================================
 // CONTROLLER: POSApp
 // =====================================================
 class POSApp {
@@ -457,6 +672,7 @@ class POSApp {
     this.cart = new CartManager();
     this.payment = new PaymentManager(this.cart);
     this.printer = new PrintManager(this.products);
+    this.admin = new ProductAdmin(this.products, () => this._renderProducts());
     this.searchQuery = "";
     this.searchTimeout = null;
   }
@@ -620,6 +836,9 @@ class POSApp {
 
   // ---- EVENTS ----
   _bindEvents() {
+    // Admin button
+    document.getElementById("btnAdmin")?.addEventListener("click", () => this.admin.open());
+
     const searchInput = document.getElementById("searchProduct");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
