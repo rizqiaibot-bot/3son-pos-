@@ -558,7 +558,16 @@ class ProductAdmin {
     document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
-      setTimeout(() => window.dispatchEvent(new CustomEvent('3son:product-updated')), 200);
+      console.log('[3SON] admin modal hidden, triggering re-render');
+      setTimeout(() => {
+        if (window.posApp) {
+          window.posApp.searchQuery = '';
+          const s = document.getElementById('searchProduct');
+          if (s) s.value = '';
+          window.posApp._renderProducts();
+        }
+        window.dispatchEvent(new CustomEvent('3son:product-updated'));
+      }, 200);
     });
 
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
@@ -659,8 +668,15 @@ class ProductAdmin {
       if (priceEl) priceEl.textContent = formatRupiah(data.harga);
     }
 
-    console.log('[3SON] dispatching product-updated event, id:', id, 'hasImage:', !!data.gambar);
+    console.log('[3SON] saveProduct done, dispatching event for id:', id, 'hasImage:', !!data.gambar);
     window.dispatchEvent(new CustomEvent('3son:product-updated'));
+
+    // Direct fallback: force re-render via window.posApp
+    if (window.posApp && typeof window.posApp._renderProducts === 'function') {
+      console.log('[3SON] also calling window.posApp._renderProducts directly');
+      window.posApp.searchQuery = '';
+      window.posApp._renderProducts();
+    }
 
     const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
     editModal?.hide();
