@@ -761,22 +761,22 @@ class POSApp {
           <img src="${p.gambar}" alt="${p.nama}" class="product-img" loading="lazy"
                onerror="this.src='assets/img/default-product.svg';this.style.objectFit='contain';this.style.padding='10px'">
         </div>
-        <div class="product-info">
-          <div class="product-name" title="${p.nama}">${p.nama}</div>
-          <div class="product-info-bottom">
+        <div class="product-info-bar">
+          <div class="product-text">
+            <div class="product-name" title="${p.nama}">${p.nama}</div>
             <div class="product-price">${formatRupiah(p.harga)}</div>
-            <button class="btn-add" data-action="add" title="Tambah">&plus;</button>
           </div>
+          <button class="btn-add-card" data-action="add" title="Tambah">&plus;</button>
         </div></div>`).join("");
     }
     if (countEl) countEl.textContent = `${products.length} produk`;
     container.querySelectorAll(".product-card").forEach(card => {
       card.addEventListener("click", (e) => {
-        if (e.target.closest(".btn-add")) return;
+        if (e.target.closest(".btn-add-card")) return;
         const produk = products.find(p => p.id === card.dataset.id);
         if (produk) { this._addToCart(produk); card.classList.add("adding"); setTimeout(() => card.classList.remove("adding"), 400); }
       });
-      card.querySelector(".btn-add")?.addEventListener("click", (e) => {
+      card.querySelector(".btn-add-card")?.addEventListener("click", (e) => {
         e.stopPropagation();
         const produk = products.find(p => p.id === card.dataset.id);
         if (produk) { this._addToCart(produk); card.classList.add("adding"); setTimeout(() => card.classList.remove("adding"), 400); }
