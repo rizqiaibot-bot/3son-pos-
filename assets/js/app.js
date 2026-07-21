@@ -641,6 +641,9 @@ class ProductAdmin {
   }
 
   _saveEdit() {
+    console.log('[3SON] _saveEdit called!');
+    if (this._saving) return;
+    this._saving = true;
     const id = document.getElementById("adminEditId").value;
     const nama = document.getElementById("adminEditNama").value.trim();
     const harga = parseInt(document.getElementById("adminEditHarga").value) || 0;
