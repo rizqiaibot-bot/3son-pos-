@@ -558,20 +558,14 @@ class ProductAdmin {
     document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
-      if (window.posApp) {
-        window.posApp.searchQuery = "";
-        const searchEl = document.getElementById("searchProduct");
-        if (searchEl) searchEl.value = "";
-        setTimeout(() => window.posApp._renderProducts(), 150);
-      }
+      setTimeout(() => window.dispatchEvent(new CustomEvent('3son:product-updated')), 200);
     });
 
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
       if (confirm("Reset SEMUA produk ke default? Semua perubahan foto, harga, dan nama akan hilang.")) {
         await this.pm.resetOverrides();
         this._renderGrid();
-        if (window.posApp) { window.posApp.searchQuery = ""; window.posApp._renderProducts(); }
-        else { this.renderCallback(); }
+        window.dispatchEvent(new CustomEvent('3son:product-updated'));
         this._showToast("Semua produk direset ke default");
       }
     });
@@ -664,6 +658,8 @@ class ProductAdmin {
       const priceEl = card.querySelector(".product-price");
       if (priceEl) priceEl.textContent = formatRupiah(data.harga);
     }
+
+    window.dispatchEvent(new CustomEvent('3son:product-updated'));
 
     const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
     editModal?.hide();
@@ -856,6 +852,14 @@ class POSApp {
   _bindEvents() {
     // Admin button
     document.getElementById("btnAdmin")?.addEventListener("click", () => this.admin.open());
+
+    // Listen for product updates from admin panel
+    window.addEventListener('3son:product-updated', () => {
+      this.searchQuery = "";
+      const searchEl = document.getElementById("searchProduct");
+      if (searchEl) searchEl.value = "";
+      this._renderProducts();
+    });
 
     const searchInput = document.getElementById("searchProduct");
     if (searchInput) {
