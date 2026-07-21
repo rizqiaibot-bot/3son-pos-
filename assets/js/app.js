@@ -327,8 +327,8 @@ class PrintManager {
       <td class="header-left" width="62%">
         <div class="hl-logo-row">
           <div class="hl-logo">
-            <img src="assets/img/default-product.png" alt="3SON" style="width:62px;height:62px;"
-                 onerror="this.src='assets/img/default-product.svg'">
+            <img src="logo 3son.png" alt="3SON" style="width:62px;height:62px;"
+                 onerror="this.style.display='none'">
           </div>
           <div class="hl-brand">
             <h2>3SON FROZEN FOOD</h2>

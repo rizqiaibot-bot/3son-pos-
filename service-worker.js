@@ -4,7 +4,7 @@ const ASSETS = [
   "./assets/css/style.css",
   "./assets/js/app.js",
   "./data/produk.json",
-  "./assets/img/default-product.svg",
+  "./logo 3son.png",
   "./manifest.json"
 ];
 

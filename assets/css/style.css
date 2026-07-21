@@ -34,9 +34,10 @@ body {
 .header-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .header-logo {
   width: 44px; height: 44px; border-radius: 12px;
-  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  background: url('../../logo 3son.png') center/cover no-repeat;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 800; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+  font-size: 0; text-indent: -9999px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+  overflow: hidden;
 }
 .header-brand h2 { font-size: 19px; font-weight: 700; line-height: 1.15; color: var(--dark); letter-spacing: -0.3px; }
 .header-brand span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
