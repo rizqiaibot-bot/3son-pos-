@@ -540,6 +540,9 @@ class ProductAdmin {
             <span class="admin-product-card-category">${catName}</span>
           </div>
         </div>
+        <div class="admin-product-card-edit-hint">
+          <i class="bi bi-pencil-square"></i> Klik untuk edit
+        </div>
       </div>`;
     }).join("");
 

@@ -414,6 +414,11 @@ body {
 .admin-search-input::placeholder { color: rgba(255,255,255,0.5); }
 .admin-search-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
 .admin-modal .modal-body { padding: 20px 24px; background: var(--bg); }
+.admin-hint-text {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 16px;
+  padding: 8px 14px; background: var(--primary-light); border-radius: 10px;
+  display: flex; align-items: center; gap: 8px; font-weight: 500;
+}
 
 .admin-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
@@ -445,6 +450,12 @@ body {
   position: absolute; top: 8px; left: 8px; background: #10B981; color: #fff;
   font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full);
 }
+.admin-product-card-edit-hint {
+  position: absolute; bottom: 0; left: 0; right: 0; background: rgba(37,99,235,0.9); color: #fff;
+  font-size: 11px; font-weight: 600; padding: 6px 0; text-align: center;
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.admin-product-card:hover .admin-product-card-edit-hint { opacity: 1; }
 
 /* ============================================ ADMIN EDIT MODAL === */
 .admin-edit-modal .modal-content { border: none; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-lg); }
