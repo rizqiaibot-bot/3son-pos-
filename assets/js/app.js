@@ -558,14 +558,16 @@ class ProductAdmin {
     document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
-      this.renderCallback();
+      if (window.posApp) { window.posApp.searchQuery = ""; window.posApp._renderProducts(); }
+      else { this.renderCallback(); }
     });
 
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
       if (confirm("Reset SEMUA produk ke default? Semua perubahan foto, harga, dan nama akan hilang.")) {
         await this.pm.resetOverrides();
         this._renderGrid();
-        this.renderCallback();
+        if (window.posApp) { window.posApp.searchQuery = ""; window.posApp._renderProducts(); }
+        else { this.renderCallback(); }
         this._showToast("Semua produk direset ke default");
       }
     });
@@ -646,7 +648,15 @@ class ProductAdmin {
 
     this.pm.saveProduct(id, data);
     this._renderGrid();
-    this.renderCallback();
+
+    if (window.posApp) {
+      window.posApp.searchQuery = "";
+      const searchEl = document.getElementById("searchProduct");
+      if (searchEl) searchEl.value = "";
+      window.posApp._renderProducts();
+    } else {
+      this.renderCallback();
+    }
 
     const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
     editModal?.hide();
