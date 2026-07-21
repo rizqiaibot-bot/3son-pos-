@@ -558,6 +558,7 @@ class ProductAdmin {
     document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
+      this.renderCallback();
     });
 
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
