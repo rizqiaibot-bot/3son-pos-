@@ -25,6 +25,22 @@ body {
 .pos-container { display: flex; height: 100vh; overflow: hidden; }
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
 
+/* ============================================ SIDEBAR KIRI === */
+.sidebar-left {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 72px; background: var(--dark); padding: 12px 0; flex-shrink: 0; z-index: 20;
+}
+.sidebar-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 56px; padding: 10px 4px; border: none; background: transparent;
+  color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: var(--transition); border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+.sidebar-item i { font-size: 22px; }
+.sidebar-item:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sidebar-item.active { color: #fff; background: var(--primary); }
+
 /* ============================================ HEADER === */
 .pos-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -305,6 +321,7 @@ body {
   .mobile-fab { display: flex !important; }
   .cart-panel { display: none !important; }
   .shortcut-hint { display: none !important; }
+  .sidebar-left { display: none !important; }
   .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 12px 90px; }
   .pos-header {
     flex-wrap: wrap; gap: 10px; padding: 10px 12px;
@@ -358,7 +375,7 @@ body {
 /* ============================================ PRINT MEDIA === */
 @media print {
   body > :not(#printContainer) { visibility: hidden !important; display: none !important; }
-  .bottom-nav, .mobile-fab, .mobile-cart, .btn-admin { display: none !important; }
+  .bottom-nav, .mobile-fab, .mobile-cart, .btn-admin, .sidebar-left { display: none !important; }
   #printContainer { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
   #printContainer * { visibility: visible !important; }
   #printContainer td, #printContainer th, #printContainer tr, #printContainer tbody, #printContainer thead, #printContainer tfoot { display: revert; }
