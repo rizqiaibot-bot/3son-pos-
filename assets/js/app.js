@@ -558,8 +558,12 @@ class ProductAdmin {
     document.getElementById("adminModal")?.addEventListener("hidden.bs.modal", () => {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
-      if (window.posApp) { window.posApp.searchQuery = ""; window.posApp._renderProducts(); }
-      else { this.renderCallback(); }
+      if (window.posApp) {
+        window.posApp.searchQuery = "";
+        const searchEl = document.getElementById("searchProduct");
+        if (searchEl) searchEl.value = "";
+        setTimeout(() => window.posApp._renderProducts(), 150);
+      }
     });
 
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
@@ -649,13 +653,16 @@ class ProductAdmin {
     this.pm.saveProduct(id, data);
     this._renderGrid();
 
-    if (window.posApp) {
-      window.posApp.searchQuery = "";
-      const searchEl = document.getElementById("searchProduct");
-      if (searchEl) searchEl.value = "";
-      window.posApp._renderProducts();
-    } else {
-      this.renderCallback();
+    const card = document.querySelector(`.product-card[data-id="${id}"]`);
+    if (card) {
+      if (data.gambar) {
+        const img = card.querySelector(".product-img");
+        if (img) img.src = data.gambar;
+      }
+      const nameEl = card.querySelector(".product-name");
+      if (nameEl) nameEl.textContent = data.nama;
+      const priceEl = card.querySelector(".product-price");
+      if (priceEl) priceEl.textContent = formatRupiah(data.harga);
     }
 
     const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
