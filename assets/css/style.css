@@ -90,7 +90,7 @@ body {
 
 /* Product Grid */
 .products-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
   gap: 8px; padding: 10px 12px 20px; overflow-y: auto; flex: 1;
   align-content: start; grid-auto-rows: min-content;
 }
@@ -117,15 +117,15 @@ body {
 
 .product-info-bar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 3px 5px; gap: 2px; flex-shrink: 0;
+  padding: 4px 5px; gap: 3px; flex-shrink: 0;
 }
 .product-info-bar .product-text { flex: 1; min-width: 0; }
 .product-info-bar .product-name {
-  font-size: 8px; font-weight: 600; color: var(--text); line-height: 1.2;
+  font-size: 10px; font-weight: 600; color: var(--text); line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .product-info-bar .product-price {
-  font-size: 9px; font-weight: 800; color: var(--dark); line-height: 1;
+  font-size: 11px; font-weight: 800; color: var(--dark); line-height: 1;
 }
 .btn-add-card {
   width: 22px; height: 22px; min-width: 22px; min-height: 22px;
