@@ -559,7 +559,7 @@ class ProductAdmin {
       const searchInput = document.getElementById("adminSearch");
       if (searchInput) searchInput.value = "";
       document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
-      document.getElementById("sidebarHome")?.classList.add("active");
+      document.getElementById("sidebarAdmin")?.classList.add("active");
       console.log('[3SON] admin modal hidden, triggering re-render');
       setTimeout(() => {
         if (window.posApp) {
@@ -905,16 +905,6 @@ class POSApp {
       document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
       document.getElementById("sidebarAdmin")?.classList.add("active");
       this.admin.open();
-    });
-
-    // Sidebar Home
-    document.getElementById("sidebarHome")?.addEventListener("click", () => {
-      document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
-      document.getElementById("sidebarHome")?.classList.add("active");
-      this.searchQuery = "";
-      const s = document.getElementById("searchProduct");
-      if (s) s.value = "";
-      this._renderProducts();
     });
 
     // Listen for product updates from admin panel
