@@ -90,7 +90,7 @@ body {
 
 /* Product Grid */
 .products-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px; padding: 16px; overflow-y: auto; flex: 1;
   align-content: start; grid-auto-rows: min-content;
 }
@@ -121,16 +121,16 @@ body {
 }
 .product-info-bar .product-text { flex: 1; min-width: 0; }
 .product-info-bar .product-name {
-  font-size: 50px; font-weight: 700; color: var(--text); line-height: 1.1;
+  font-size: 25px; font-weight: 700; color: var(--text); line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .product-info-bar .product-price {
   font-size: 40px; font-weight: 800; color: var(--dark); line-height: 1;
 }
 .btn-add-card {
-  width: 80px; height: 80px; min-width: 80px; min-height: 80px;
-  border: none; border-radius: 12px; background: var(--primary);
-  color: #fff; font-size: 50px; font-weight: 700; cursor: pointer;
+  width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  border: none; border-radius: 10px; background: var(--primary);
+  color: #fff; font-size: 26px; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; font-family: 'Poppins', sans-serif; line-height: 1; padding: 0;
 }
