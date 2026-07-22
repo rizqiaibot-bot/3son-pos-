@@ -762,11 +762,11 @@ class POSApp {
                onerror="this.src='assets/img/default-product.svg';this.style.objectFit='contain';this.style.padding='10px'">
         </div>
         <div class="product-info-bar">
-          <div class="product-text">
-            <div class="product-name" title="${p.nama}">${p.nama}</div>
+          <div class="product-name" title="${p.nama}">${p.nama}</div>
+          <div class="product-row">
             <div class="product-price">${formatRupiah(p.harga)}</div>
+            <button class="btn-add-card" data-action="add" title="Tambah">&plus;</button>
           </div>
-          <button class="btn-add-card" data-action="add" title="Tambah">&plus;</button>
         </div></div>`).join("");
     }
     if (countEl) countEl.textContent = `${products.length} produk`;
