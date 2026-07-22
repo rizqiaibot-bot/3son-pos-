@@ -103,12 +103,6 @@ body {
 }
 .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .product-card:active { transform: scale(0.98); }
-.fav-icon {
-  position: absolute; top: 8px; right: 8px; z-index: 2; font-size: 12px;
-  background: rgba(255,255,255,0.95); width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-xs); backdrop-filter: blur(4px);
-}
 .product-img-wrap {
   aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
   background: #F3F4F6; overflow: hidden; flex-shrink: 0;

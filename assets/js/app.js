@@ -527,17 +527,14 @@ class ProductAdmin {
     grid.innerHTML = products.map(p => {
       const isOverridden = !!overrides[p.id];
       const badge = isOverridden ? '<span class="admin-product-card-overridden">edited</span>' : '';
-      const catName = (this.pm.kategori.find(k => k.id === p.kategori) || {}).nama || p.kategori;
-      const showFav = p.favorit ? ' <span class="admin-product-card-fav">&#11088;</span>' : '';
       return `<div class="admin-product-card" data-id="${p.id}" style="position:relative">
         ${badge}
         <img src="${p.gambar}" alt="${p.nama}" class="admin-product-card-img" loading="lazy"
              onerror="this.src='assets/img/default-product.svg';this.style.objectFit='contain';this.style.padding='10px'">
         <div class="admin-product-card-body">
-          <div class="admin-product-card-name" title="${p.nama}">${p.nama}${showFav}</div>
+          <div class="admin-product-card-name" title="${p.nama}">${p.nama}</div>
           <div class="admin-product-card-meta">
             <span class="admin-product-card-price">${formatRupiah(p.harga)}</span>
-            <span class="admin-product-card-category">${catName}</span>
           </div>
         </div>
         <div class="admin-product-card-edit-hint">
@@ -619,11 +616,6 @@ class ProductAdmin {
     document.getElementById("adminEditHarga").value = this._editProd.harga;
     document.getElementById("adminEditStok").value = this._editProd.stok || 0;
 
-    const sel = document.getElementById("adminEditKategori");
-    sel.innerHTML = this.pm.kategori.filter(k => k.id !== "favorit").map(k =>
-      `<option value="${k.id}" ${this._editProd.kategori === k.id ? "selected" : ""}>${k.nama}</option>`
-    ).join("");
-
     document.getElementById("adminEditFavorit").checked = this._editProd.favorit;
 
     this._updateImagePreview();
@@ -634,7 +626,7 @@ class ProductAdmin {
 
   _openNew() {
     const newId = 'p' + (this.pm.produk.length + 1).toString().padStart(3, '0');
-    this._editProd = { id: newId, nama: '', harga: 0, stok: 0, kategori: this.pm.kategori[0]?.id || 'bakso', favorit: false, gambar: 'assets/img/default-product.svg' };
+    this._editProd = { id: newId, nama: '', harga: 0, stok: 0, gambar: 'assets/img/default-product.svg' };
     this._imageData = null;
     this._isNew = true;
 
@@ -642,11 +634,6 @@ class ProductAdmin {
     document.getElementById("adminEditNama").value = '';
     document.getElementById("adminEditHarga").value = '';
     document.getElementById("adminEditStok").value = '';
-    const sel = document.getElementById("adminEditKategori");
-    sel.innerHTML = this.pm.kategori.filter(k => k.id !== "favorit").map(k =>
-      `<option value="${k.id}">${k.nama}</option>`
-    ).join("");
-    document.getElementById("adminEditFavorit").checked = false;
     this._updateImagePreview();
 
     const modalEl = document.getElementById("adminEditModal");
@@ -680,12 +667,10 @@ class ProductAdmin {
     const nama = document.getElementById("adminEditNama").value.trim();
     const harga = parseInt(document.getElementById("adminEditHarga").value) || 0;
     const stok = parseInt(document.getElementById("adminEditStok").value) || 0;
-    const kategori = document.getElementById("adminEditKategori").value;
-    const favorit = document.getElementById("adminEditFavorit").checked;
 
     if (!nama) { this._saving = false; this._showToast("Nama produk tidak boleh kosong!"); return; }
 
-    const data = { nama, harga, stok, kategori, favorit };
+    const data = { nama, harga, stok };
     if (this._imageData) data.gambar = this._imageData;
 
     if (this._isNew) {
@@ -793,7 +778,6 @@ class POSApp {
         <p style="font-size:13px">Coba kata kunci lain</p></div>`;
     } else {
       container.innerHTML = products.map(p => `<div class="product-card" data-id="${p.id}" data-nama="${p.nama}" data-harga="${p.harga}">
-        ${p.favorit ? '<span class="fav-icon">&#11088;</span>' : ""}
         <div class="product-img-wrap">
           <img src="${p.gambar}" alt="${p.nama}" class="product-img" loading="lazy"
                onerror="this.src='assets/img/default-product.svg';this.style.objectFit='contain';this.style.padding='10px'">
