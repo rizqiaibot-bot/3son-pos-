@@ -3,7 +3,7 @@
     { "id": "bakso", "nama": "Bakso" }
   ],
   "produk": [
-    { "id": "p001", "nama": "Bakso Tuna Besar Isi 50", "harga": 45000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" }
+    { "id": "p001", "nama": "Bakso Ikan", "harga": 50000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" }
   ],
   "invoiceSlots": [
     { "no": 1,  "productId": "p001", "nama": "Bakso Tuna Besar Isi 50" },
