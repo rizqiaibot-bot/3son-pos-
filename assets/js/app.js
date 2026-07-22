@@ -575,6 +575,8 @@ class ProductAdmin {
       }, 200);
     });
 
+    document.getElementById("btnAddProduct")?.addEventListener("click", () => this._openNew());
+
     document.getElementById("btnResetAll")?.addEventListener("click", async () => {
       if (confirm("Reset SEMUA produk ke default? Semua perubahan foto, harga, dan nama akan hilang.")) {
         await this.pm.resetOverrides();
@@ -630,6 +632,31 @@ class ProductAdmin {
     editModal.show();
   }
 
+  _openNew() {
+    const newId = 'p' + (this.pm.produk.length + 1).toString().padStart(3, '0');
+    this._editProd = { id: newId, nama: '', harga: 0, stok: 0, kategori: this.pm.kategori[0]?.id || 'bakso', favorit: false, gambar: 'assets/img/default-product.svg' };
+    this._imageData = null;
+    this._isNew = true;
+
+    document.getElementById("adminEditId").value = newId;
+    document.getElementById("adminEditNama").value = '';
+    document.getElementById("adminEditHarga").value = '';
+    document.getElementById("adminEditStok").value = '';
+    const sel = document.getElementById("adminEditKategori");
+    sel.innerHTML = this.pm.kategori.filter(k => k.id !== "favorit").map(k =>
+      `<option value="${k.id}">${k.nama}</option>`
+    ).join("");
+    document.getElementById("adminEditFavorit").checked = false;
+    this._updateImagePreview();
+
+    const modalEl = document.getElementById("adminEditModal");
+    const modalH5 = modalEl.querySelector(".modal-header h5");
+    if (modalH5) modalH5.innerHTML = '<i class="bi bi-plus-circle"></i> Tambah Produk';
+
+    const editModal = new bootstrap.Modal(modalEl);
+    editModal.show();
+  }
+
   _updateImagePreview() {
     const wrap = document.getElementById("adminEditImgWrap");
     const img = document.getElementById("adminEditImg");
@@ -656,12 +683,18 @@ class ProductAdmin {
     const kategori = document.getElementById("adminEditKategori").value;
     const favorit = document.getElementById("adminEditFavorit").checked;
 
-    if (!nama) { this._showToast("Nama produk tidak boleh kosong!"); return; }
+    if (!nama) { this._saving = false; this._showToast("Nama produk tidak boleh kosong!"); return; }
 
     const data = { nama, harga, stok, kategori, favorit };
     if (this._imageData) data.gambar = this._imageData;
 
-    this.pm.saveProduct(id, data);
+    if (this._isNew) {
+      const newProd = { id, ...data, gambar: data.gambar || 'assets/img/default-product.svg' };
+      this.pm.produk.push(newProd);
+      this.pm.saveProduct(id, newProd);
+    } else {
+      this.pm.saveProduct(id, data);
+    }
     this._renderGrid();
 
     const card = document.querySelector(`.product-card[data-id="${id}"]`);
@@ -690,6 +723,10 @@ class ProductAdmin {
     editModal?.hide();
 
     this._showToast("Produk " + nama + " berhasil disimpan!");
+    this._isNew = false;
+    this._saving = false;
+    const modalH5 = document.getElementById("adminEditModal").querySelector(".modal-header h5");
+    if (modalH5) modalH5.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Produk';
   }
 
   _showToast(msg) {
