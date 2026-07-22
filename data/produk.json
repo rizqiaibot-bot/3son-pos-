@@ -3,10 +3,12 @@
     { "id": "bakso", "nama": "Bakso" }
   ],
   "produk": [
-    { "id": "p001", "nama": "Bakso Ikan", "harga": 50000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" }
+    { "id": "p001", "nama": "Bakso Ikan", "harga": 50000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" },
+    { "id": "p002", "nama": "Bakso Super", "harga": 55000, "stok": 8, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" }
   ],
   "invoiceSlots": [
-    { "no": 1,  "productId": "p001", "nama": "Bakso Tuna Besar Isi 50" },
+    { "no": 1,  "productId": "p001", "nama": "Bakso Ikan" },
+    { "no": 2,  "productId": "p002", "nama": "Bakso Super" },
     { "no": 2,  "productId": null,  "nama": "" },
     { "no": 3,  "productId": null,  "nama": "" },
     { "no": 4,  "productId": null,  "nama": "" },
