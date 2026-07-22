@@ -340,7 +340,7 @@ body {
 /* Mobile (576-767) & Below: full mobile layout */
 @media (max-width: 767px) {
   .bottom-nav { display: flex !important; }
-  .mobile-fab { display: flex !important; }
+  .mobile-fab { display: none !important; }
   .cart-panel { display: none !important; }
   .shortcut-hint { display: none !important; }
   .sidebar-left { display: none !important; }
