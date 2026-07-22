@@ -90,7 +90,7 @@ body {
 
 /* Product Grid */
 .products-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 12px; padding: 16px; overflow-y: auto; flex: 1;
   align-content: start; grid-auto-rows: min-content;
 }
@@ -117,7 +117,7 @@ body {
 
 .product-info-bar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px; gap: 8px; flex-shrink: 0;
+  padding: 8px; gap: 6px; flex-shrink: 0;
 }
 .product-info-bar .product-text { flex: 1; min-width: 0; }
 .product-info-bar .product-name {
@@ -125,12 +125,12 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .product-info-bar .product-price {
-  font-size: 40px; font-weight: 800; color: var(--dark); line-height: 1;
+  font-size: 25px; font-weight: 800; color: var(--dark); line-height: 1;
 }
 .btn-add-card {
-  width: 44px; height: 44px; min-width: 44px; min-height: 44px;
-  border: none; border-radius: 10px; background: var(--primary);
-  color: #fff; font-size: 26px; font-weight: 700; cursor: pointer;
+  width: 35px; height: 35px; min-width: 35px; min-height: 35px;
+  border: none; border-radius: 8px; background: var(--primary);
+  color: #fff; font-size: 20px; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; font-family: 'Poppins', sans-serif; line-height: 1; padding: 0;
 }
