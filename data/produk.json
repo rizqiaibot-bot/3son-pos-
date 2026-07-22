@@ -6,13 +6,21 @@
     { "id": "p001", "nama": "Bakso Ikan", "harga": 50000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" },
     { "id": "p002", "nama": "Bakso Super", "harga": 55000, "stok": 8, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
     { "id": "p003", "nama": "Otak-Otak", "harga": 48000, "stok": 12, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
-    { "id": "p004", "nama": "Siomay Ikan", "harga": 45000, "stok": 15, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" }
+    { "id": "p004", "nama": "Siomay Ikan", "harga": 45000, "stok": 15, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
+    { "id": "p005", "nama": "Kaki Naga", "harga": 52000, "stok": 7, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
+    { "id": "p006", "nama": "Fish Roll", "harga": 47000, "stok": 9, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" },
+    { "id": "p007", "nama": "Kekian", "harga": 43000, "stok": 11, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
+    { "id": "p008", "nama": "Nugget Ikan", "harga": 40000, "stok": 20, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" }
   ],
   "invoiceSlots": [
     { "no": 1,  "productId": "p001", "nama": "Bakso Ikan" },
     { "no": 2,  "productId": "p002", "nama": "Bakso Super" },
     { "no": 3,  "productId": "p003", "nama": "Otak-Otak" },
     { "no": 4,  "productId": "p004", "nama": "Siomay Ikan" },
+    { "no": 5,  "productId": "p005", "nama": "Kaki Naga" },
+    { "no": 6,  "productId": "p006", "nama": "Fish Roll" },
+    { "no": 7,  "productId": "p007", "nama": "Kekian" },
+    { "no": 8,  "productId": "p008", "nama": "Nugget Ikan" },
     { "no": 2,  "productId": null,  "nama": "" },
     { "no": 3,  "productId": null,  "nama": "" },
     { "no": 4,  "productId": null,  "nama": "" },
