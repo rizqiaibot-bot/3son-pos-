@@ -527,6 +527,8 @@ body {
 .favorit-check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .favorit-check input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 .admin-edit-actions { display: flex; gap: 10px; margin-top: 10px; }
+.btn-delete-product { color: #DC2626 !important; border-color: #FECACA !important; }
+.btn-delete-product:hover { background: #FEF2F2 !important; border-color: #DC2626 !important; }
 
 /* ============================================ TRANSITIONS === */
 .product-card, .btn-cart-action, .qty-btn, .method-btn, .print-mode-btn { transition: var(--transition); }

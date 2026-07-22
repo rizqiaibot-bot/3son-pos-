@@ -585,6 +585,8 @@ class ProductAdmin {
 
     document.getElementById("btnSaveProduct")?.addEventListener("click", () => this._saveEdit());
 
+    document.getElementById("btnDeleteProduct")?.addEventListener("click", () => this._deleteProduct());
+
     document.getElementById("adminImageInput")?.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -620,7 +622,12 @@ class ProductAdmin {
 
     this._updateImagePreview();
 
-    const editModal = new bootstrap.Modal(document.getElementById("adminEditModal"));
+    document.getElementById("btnDeleteProduct").style.display = 'flex';
+    const modalEl = document.getElementById("adminEditModal");
+    const modalH5 = modalEl.querySelector(".modal-header h5");
+    if (modalH5) modalH5.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Produk';
+
+    const editModal = new bootstrap.Modal(modalEl);
     editModal.show();
   }
 
@@ -634,6 +641,7 @@ class ProductAdmin {
     document.getElementById("adminEditNama").value = '';
     document.getElementById("adminEditHarga").value = '';
     document.getElementById("adminEditStok").value = '';
+    document.getElementById("btnDeleteProduct").style.display = 'none';
     this._updateImagePreview();
 
     const modalEl = document.getElementById("adminEditModal");
@@ -642,6 +650,23 @@ class ProductAdmin {
 
     const editModal = new bootstrap.Modal(modalEl);
     editModal.show();
+  }
+
+  _deleteProduct() {
+    const id = document.getElementById("adminEditId").value;
+    const prod = this.pm.findById(id);
+    if (!prod) return;
+    if (!confirm(`Hapus produk "${prod.nama}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+
+    this.pm.produk = this.pm.produk.filter(p => p.id !== id);
+    delete this.pm._overrides[id];
+    this.pm._saveOverrides();
+
+    const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
+    editModal?.hide();
+    this._renderGrid();
+    window.dispatchEvent(new CustomEvent('3son:product-updated'));
+    this._showToast("Produk dihapus");
   }
 
   _updateImagePreview() {
@@ -746,7 +771,6 @@ class POSApp {
     this._renderCart();
     this._startClock();
     this._bindEvents();
-    this._bindShortcuts();
   }
 
   // ---- CLOCK ----
@@ -1039,19 +1063,6 @@ class POSApp {
     window.addEventListener("afterprint", () => {
       const container = document.getElementById("printContainer");
       if (container) { container.innerHTML = ""; container.className = "print-container"; }
-    });
-
-    // F8 Hold (dummy)
-    document.addEventListener("keydown", (e) => { if (e.key === "F8") { e.preventDefault(); this._showToast("F8: Hold (coming soon)"); } });
-  }
-
-  // ---- SHORTCUTS ----
-  _bindShortcuts() {
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "F2") { e.preventDefault(); document.getElementById("searchProduct")?.focus(); }
-      if (e.key === "F4") { e.preventDefault(); if (!this.cart.isEmpty && confirm("Kosongkan keranjang?")) { this.cart.clear(); this._renderCart(); } }
-      if (e.key === "F9") { e.preventDefault(); if (!this.cart.isEmpty) this._openPaymentModal(); }
-      if (e.key === "Escape") { const modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal")); if (modal) modal.hide(); }
     });
   }
 
