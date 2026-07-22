@@ -323,7 +323,7 @@ body {
 @media (min-width: 1200px) {
   .bottom-nav { display: none !important; }
   .mobile-fab { display: none !important; }
-  .products-grid { grid-template-columns: repeat(5, 1fr) !important; }
+  .products-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
 
 /* Laptop (992-1199) */

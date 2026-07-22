@@ -4,11 +4,15 @@
   ],
   "produk": [
     { "id": "p001", "nama": "Bakso Ikan", "harga": 50000, "stok": 10, "kategori": "bakso", "favorit": true, "gambar": "assets/img/default-product.svg" },
-    { "id": "p002", "nama": "Bakso Super", "harga": 55000, "stok": 8, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" }
+    { "id": "p002", "nama": "Bakso Super", "harga": 55000, "stok": 8, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
+    { "id": "p003", "nama": "Otak-Otak", "harga": 48000, "stok": 12, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" },
+    { "id": "p004", "nama": "Siomay Ikan", "harga": 45000, "stok": 15, "kategori": "bakso", "favorit": false, "gambar": "assets/img/default-product.svg" }
   ],
   "invoiceSlots": [
     { "no": 1,  "productId": "p001", "nama": "Bakso Ikan" },
     { "no": 2,  "productId": "p002", "nama": "Bakso Super" },
+    { "no": 3,  "productId": "p003", "nama": "Otak-Otak" },
+    { "no": 4,  "productId": "p004", "nama": "Siomay Ikan" },
     { "no": 2,  "productId": null,  "nama": "" },
     { "no": 3,  "productId": null,  "nama": "" },
     { "no": 4,  "productId": null,  "nama": "" },
