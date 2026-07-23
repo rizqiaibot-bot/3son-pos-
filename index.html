@@ -155,6 +155,11 @@
             <i class="bi bi-credit-card"></i> Bayar (F9)
           </button>
         </div>
+
+        <div class="customer-selected" id="customerSelected">
+          <div class="customer-selected-label">Customer</div>
+          <div class="customer-selected-name" id="customerSelectedName">—</div>
+        </div>
       </div>
     </aside>
 
@@ -201,12 +206,6 @@
             <input type="number" id="inputBayar" placeholder="Masukkan jumlah bayar..." min="0" autocomplete="off">
           </div>
 
-          <!-- Customer -->
-          <div class="payment-input-group">
-            <label>Nama Customer</label>
-            <input type="text" id="inputCustomer" placeholder="Nama customer / toko..." autocomplete="off">
-          </div>
-
           <!-- Print Mode -->
           <div class="payment-input-group">
             <label>Mode Cetak</label>
@@ -235,6 +234,23 @@
               <i class="bi bi-printer-fill"></i> Simpan & Print
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+        CUSTOMER: Select Customer Modal
+        ====================================================== -->
+  <div class="modal fade customer-modal" id="customerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5><i class="bi bi-people"></i> Pilih Customer</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="customer-list" id="customerList"></div>
         </div>
       </div>
     </div>

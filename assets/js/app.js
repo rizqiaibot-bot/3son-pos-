@@ -761,6 +761,12 @@ class POSApp {
     this.admin = new ProductAdmin(this.products, () => this._renderProducts());
     this.searchQuery = "";
     this.searchTimeout = null;
+    this.selectedCustomer = "";
+    this.customers = [
+      "Toko Berkah", "Warung Sari", "UD Maju Jaya", "Toko Serba Ada",
+      "Warung Mbak Sri", "Toko Barokah", "Agen Frozen A", "Agen Frozen B",
+      "Pedagang Pasar", "Warung Kelontong", "Resto Sederhana", "Kantin Sekolah"
+    ];
   }
 
   // ---- INIT ----
@@ -942,7 +948,7 @@ class POSApp {
     document.getElementById("sidebarCustomer")?.addEventListener("click", () => {
       document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
       document.getElementById("sidebarCustomer")?.classList.add("active");
-      this._showToast("Customer: coming soon");
+      this._openCustomerModal();
     });
 
     // Listen for product updates from admin panel
@@ -1050,7 +1056,7 @@ class POSApp {
     // Save and print
     document.getElementById("btnSavePayment")?.addEventListener("click", () => {
       if (!this.payment.isLunas()) return;
-      const customer = document.getElementById("inputCustomer")?.value || "";
+      const customer = this.selectedCustomer || "";
       this.printer.print(this.cart, this.payment, customer);
       const modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
       modal?.hide();
@@ -1064,7 +1070,6 @@ class POSApp {
     document.getElementById("paymentModal")?.addEventListener("show.bs.modal", () => {
       this.payment.reset();
       document.getElementById("inputBayar").value = "";
-      document.getElementById("inputCustomer").value = "";
       this._updatePaymentDisplay();
       document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("active"));
       document.querySelector('.method-btn[data-method="tunai"]')?.classList.add("active");
@@ -1078,6 +1083,27 @@ class POSApp {
       const container = document.getElementById("printContainer");
       if (container) { container.innerHTML = ""; container.className = "print-container"; }
     });
+  }
+
+  // ---- CUSTOMER MODAL ----
+  _openCustomerModal() {
+    const list = document.getElementById("customerList");
+    if (!list) return;
+    list.innerHTML = this.customers.map(c =>
+      `<div class="customer-item${c === this.selectedCustomer ? ' active' : ''}" data-name="${c}">${c}</div>`
+    ).join("");
+    list.querySelectorAll(".customer-item").forEach(item => {
+      item.addEventListener("click", () => {
+        this.selectedCustomer = item.dataset.name;
+        document.getElementById("customerSelectedName").textContent = this.selectedCustomer;
+        document.querySelectorAll(".customer-item").forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        const modal = bootstrap.Modal.getInstance(document.getElementById("customerModal"));
+        modal?.hide();
+      });
+    });
+    const modal = new bootstrap.Modal(document.getElementById("customerModal"));
+    modal.show();
   }
 
   // ---- PAYMENT MODAL ----
