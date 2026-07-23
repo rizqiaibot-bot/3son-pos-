@@ -769,6 +769,7 @@ class POSApp {
       "Warung Mbak Sri", "Toko Barokah", "Agen Frozen A", "Agen Frozen B",
       "Pedagang Pasar", "Warung Kelontong", "Resto Sederhana", "Kantin Sekolah"
     ];
+    this._loadCustomers();
   }
 
   // ---- INIT ----
@@ -953,6 +954,24 @@ class POSApp {
       this._openCustomerModal();
     });
 
+    // Customer modal add/edit
+    document.getElementById("customerModal")?.addEventListener("show.bs.modal", () => {
+      document.getElementById("customerInput").value = "";
+    });
+    document.getElementById("btnAddCustomer")?.addEventListener("click", () => {
+      const input = document.getElementById("customerInput");
+      const name = input.value.trim();
+      if (!name) { this._showToast("Nama customer tidak boleh kosong!"); return; }
+      this.customers.push(name);
+      this._saveCustomers();
+      input.value = "";
+      const list = document.getElementById("customerList");
+      if (list) this._renderCustomerList(list);
+    });
+    document.getElementById("customerInput")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("btnAddCustomer")?.click();
+    });
+
     // Listen for product updates from admin panel
     window.addEventListener('3son:product-updated', () => {
       console.log('[3SON] product-updated event received, re-rendering...');
@@ -1092,21 +1111,72 @@ class POSApp {
   _openCustomerModal() {
     const list = document.getElementById("customerList");
     if (!list) return;
-    list.innerHTML = this.customers.map(c =>
-      `<div class="customer-item${c === this.selectedCustomer ? ' active' : ''}" data-name="${c}">${c}</div>`
+    this._renderCustomerList(list);
+    const modal = new bootstrap.Modal(document.getElementById("customerModal"));
+    modal.show();
+  }
+
+  _renderCustomerList(list) {
+    list.innerHTML = this.customers.map((c, idx) =>
+      `<div class="customer-item${c === this.selectedCustomer ? ' active' : ''}" data-idx="${idx}">
+        <span class="customer-item-name" data-name="${c}">${c}</span>
+        <span class="customer-item-actions">
+          <button class="customer-item-btn edit" data-action="edit" title="Edit"><i class="bi bi-pencil"></i></button>
+          <button class="customer-item-btn delete" data-action="delete" title="Hapus"><i class="bi bi-trash3"></i></button>
+        </span>
+      </div>`
     ).join("");
-    list.querySelectorAll(".customer-item").forEach(item => {
-      item.addEventListener("click", () => {
-        this.selectedCustomer = item.dataset.name;
+    list.querySelectorAll(".customer-item-name").forEach(el => {
+      el.addEventListener("click", () => {
+        this.selectedCustomer = el.dataset.name;
         document.getElementById("customerSelectedName").textContent = this.selectedCustomer;
-        document.querySelectorAll(".customer-item").forEach(i => i.classList.remove("active"));
-        item.classList.add("active");
+        this._renderCustomerList(list);
         const modal = bootstrap.Modal.getInstance(document.getElementById("customerModal"));
         modal?.hide();
       });
     });
-    const modal = new bootstrap.Modal(document.getElementById("customerModal"));
-    modal.show();
+    list.querySelectorAll("[data-action='edit']").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.closest(".customer-item").dataset.idx);
+        const newName = prompt("Edit nama customer:", this.customers[idx]);
+        if (newName && newName.trim()) {
+          this.customers[idx] = newName.trim();
+          if (this.selectedCustomer === list.querySelectorAll(".customer-item-name")[idx]?.dataset.name) {
+            this.selectedCustomer = newName.trim();
+            document.getElementById("customerSelectedName").textContent = this.selectedCustomer;
+          }
+          this._saveCustomers();
+          this._renderCustomerList(list);
+        }
+      });
+    });
+    list.querySelectorAll("[data-action='delete']").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.closest(".customer-item").dataset.idx);
+        if (confirm(`Hapus customer "${this.customers[idx]}"?`)) {
+          if (this.selectedCustomer === this.customers[idx]) {
+            this.selectedCustomer = "";
+            document.getElementById("customerSelectedName").textContent = "—";
+          }
+          this.customers.splice(idx, 1);
+          this._saveCustomers();
+          this._renderCustomerList(list);
+        }
+      });
+    });
+  }
+
+  _loadCustomers() {
+    try {
+      const saved = localStorage.getItem("3son_customers");
+      if (saved) this.customers = JSON.parse(saved);
+    } catch (e) {}
+  }
+
+  _saveCustomers() {
+    localStorage.setItem("3son_customers", JSON.stringify(this.customers));
   }
 
   // ---- PAYMENT MODAL ----

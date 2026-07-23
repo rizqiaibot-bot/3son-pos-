@@ -263,10 +263,21 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .customer-modal .modal-header { background: var(--slate-800); color: #fff; border: none; padding: 16px 24px; }
 .customer-modal .modal-header h5 { font-size: 16px; font-weight: 700; }
 .customer-modal .modal-body { padding: 16px; }
-.customer-list { display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; }
-.customer-item { padding: 12px 16px; border-radius: var(--radius); cursor: pointer; transition: var(--transition); font-size: 14px; font-weight: 500; color: var(--text); border: 1px solid transparent; }
-.customer-item:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.customer-header-actions { display: flex; align-items: center; gap: 8px; flex: 1; margin: 0 16px; }
+.customer-add-input { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; font-family: 'Poppins', sans-serif; outline: none; flex: 1; }
+.customer-add-input::placeholder { color: rgba(255,255,255,0.5); }
+.customer-list { display: flex; flex-direction: column; gap: 2px; max-height: 400px; overflow-y: auto; }
+.customer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: var(--radius); cursor: pointer; transition: var(--transition); font-size: 14px; font-weight: 500; color: var(--text); border: 1px solid transparent; }
+.customer-item:hover { background: var(--primary-light); }
 .customer-item.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+.customer-item-name { flex: 1; }
+.customer-item-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+.customer-item:hover .customer-item-actions { opacity: 1; }
+.customer-item-btn { width: 28px; height: 28px; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: var(--transition); background: transparent; }
+.customer-item-btn.edit { color: var(--primary); }
+.customer-item-btn.edit:hover { background: var(--primary-light); }
+.customer-item-btn.delete { color: var(--danger); }
+.customer-item-btn.delete:hover { background: #FEF2F2; }
 .toast-msg { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--slate-800); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
 .toast-msg.show { opacity: 1; }
 
