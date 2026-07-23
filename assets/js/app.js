@@ -1053,6 +1053,19 @@ class POSApp {
       this._updatePaymentDisplay();
     });
 
+    // Split Bill
+    let splitCount = 2;
+    document.getElementById("splitBillCheck")?.addEventListener("change", (e) => {
+      document.getElementById("splitBillSection").style.display = e.target.checked ? "block" : "none";
+      this._updateSplitBill(splitCount);
+    });
+    document.getElementById("splitMinus")?.addEventListener("click", () => {
+      if (splitCount > 2) { splitCount--; document.getElementById("splitCount").textContent = splitCount; this._updateSplitBill(splitCount); }
+    });
+    document.getElementById("splitPlus")?.addEventListener("click", () => {
+      if (splitCount < 10) { splitCount++; document.getElementById("splitCount").textContent = splitCount; this._updateSplitBill(splitCount); }
+    });
+
     // Save and print
     document.getElementById("btnSavePayment")?.addEventListener("click", () => {
       if (!this.payment.isLunas()) return;
@@ -1070,6 +1083,9 @@ class POSApp {
     document.getElementById("paymentModal")?.addEventListener("show.bs.modal", () => {
       this.payment.reset();
       document.getElementById("inputBayar").value = "";
+      document.getElementById("splitBillCheck").checked = false;
+      document.getElementById("splitCount").textContent = "2";
+      document.getElementById("splitBillSection").style.display = "none";
       this._updatePaymentDisplay();
       document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("active"));
       document.querySelector('.method-btn[data-method="tunai"]')?.classList.add("active");
@@ -1118,6 +1134,11 @@ class POSApp {
     document.getElementById("changeAmount").textContent = formatRupiah(this.payment.kembalian);
     const saveBtn = document.getElementById("btnSavePayment");
     if (saveBtn) saveBtn.disabled = !this.payment.isLunas();
+  }
+
+  _updateSplitBill(count) {
+    const perPerson = Math.floor(this.cart.grandTotal / count);
+    document.getElementById("splitBillPerPerson").innerHTML = `<span>${formatRupiah(perPerson)} / orang</span>`;
   }
 
   // ---- TOAST ----
