@@ -101,9 +101,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .btn-pay { background: var(--primary); color: #fff; height: 52px; border-radius: var(--radius); flex: 3; font-size: 14px; }
 .btn-pay:hover { background: var(--primary-dark); box-shadow: 0 6px 20px rgba(37,99,235,0.25); transform: translateY(-1px); }
 .btn-pay:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; transform: none; box-shadow: none; }
-.customer-selected { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.customer-selected-label { font-size: 11px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.5px; }
-.customer-selected-name { font-size: 13px; font-weight: 700; color: var(--slate-800); }
+.customer-selected { padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--primary-light); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.customer-selected-label { font-size: 10px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+.customer-selected-name { font-size: 12px; font-weight: 700; color: var(--slate-800); }
 
 .payment-modal .modal-content { border: none; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-xl); }
 .payment-modal .modal-header { background: var(--slate-800); color: #fff; border: none; padding: 20px 24px; }
