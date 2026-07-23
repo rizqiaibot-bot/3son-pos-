@@ -201,30 +201,16 @@
             </button>
           </div>
 
-          <!-- Split Bill -->
-          <div class="payment-input-group">
-            <label class="split-bill-toggle" id="splitBillToggle">
-              <input type="checkbox" id="splitBillCheck"> Split Bill
-            </label>
-            <div class="split-bill-section" id="splitBillSection" style="display:none">
-              <div class="split-bill-controls">
-                <label>Jumlah Orang</label>
-                <div class="split-bill-qty">
-                  <button class="qty-btn" id="splitMinus">-</button>
-                  <span class="qty-value" id="splitCount">2</span>
-                  <button class="qty-btn" id="splitPlus">+</button>
-                </div>
-              </div>
-              <div class="split-bill-perperson" id="splitBillPerPerson">
-                <span>Rp 0 / orang</span>
-              </div>
+          <!-- Split Payment -->
+          <div class="split-payment-row">
+            <div class="payment-input-group">
+              <label><i class="bi bi-cash-stack"></i> Tunai</label>
+              <input type="number" id="inputTunai" placeholder="0" min="0" autocomplete="off">
             </div>
-          </div>
-
-          <!-- Payment Input -->
-          <div class="payment-input-group">
-            <label>Jumlah Bayar</label>
-            <input type="number" id="inputBayar" placeholder="Masukkan jumlah bayar..." min="0" autocomplete="off">
+            <div class="payment-input-group">
+              <label><i class="bi bi-bank"></i> Transfer/QRIS</label>
+              <input type="number" id="inputTransfer" placeholder="0" min="0" autocomplete="off">
+            </div>
           </div>
 
           <!-- Print Mode -->

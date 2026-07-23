@@ -235,12 +235,14 @@ class PaymentManager {
     this.cart = cartManager;
     this.method = "tunai";
     this.bayar = 0;
+    this.tunai = 0;
+    this.transfer = 0;
     this.printMode = "a5";
   }
 
   get kembalian() { return Math.max(0, this.bayar - this.cart.grandTotal); }
   isLunas() { return this.bayar >= this.cart.grandTotal && this.cart.grandTotal > 0; }
-  reset() { this.method = "tunai"; this.bayar = 0; this.printMode = "a5"; }
+  reset() { this.method = "tunai"; this.bayar = 0; this.tunai = 0; this.transfer = 0; this.printMode = "a5"; }
 }
 
 
@@ -1029,12 +1031,6 @@ class POSApp {
         document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         this.payment.method = btn.dataset.method;
-        this._updatePaymentDisplay();
-        if (this.payment.method !== "tunai") {
-          document.getElementById("inputBayar").value = this.cart.grandTotal;
-          this.payment.bayar = this.cart.grandTotal;
-          this._updatePaymentDisplay();
-        }
       });
     });
 
@@ -1047,24 +1043,17 @@ class POSApp {
       });
     });
 
-    // Payment input
-    document.getElementById("inputBayar")?.addEventListener("input", (e) => {
-      this.payment.bayar = parseInt(e.target.value) || 0;
+    // Payment inputs (Tunai + Transfer)
+    const updateTotalBayar = () => {
+      const tunai = parseInt(document.getElementById("inputTunai")?.value) || 0;
+      const transfer = parseInt(document.getElementById("inputTransfer")?.value) || 0;
+      this.payment.tunai = tunai;
+      this.payment.transfer = transfer;
+      this.payment.bayar = tunai + transfer;
       this._updatePaymentDisplay();
-    });
-
-    // Split Bill
-    let splitCount = 2;
-    document.getElementById("splitBillCheck")?.addEventListener("change", (e) => {
-      document.getElementById("splitBillSection").style.display = e.target.checked ? "block" : "none";
-      this._updateSplitBill(splitCount);
-    });
-    document.getElementById("splitMinus")?.addEventListener("click", () => {
-      if (splitCount > 2) { splitCount--; document.getElementById("splitCount").textContent = splitCount; this._updateSplitBill(splitCount); }
-    });
-    document.getElementById("splitPlus")?.addEventListener("click", () => {
-      if (splitCount < 10) { splitCount++; document.getElementById("splitCount").textContent = splitCount; this._updateSplitBill(splitCount); }
-    });
+    };
+    document.getElementById("inputTunai")?.addEventListener("input", updateTotalBayar);
+    document.getElementById("inputTransfer")?.addEventListener("input", updateTotalBayar);
 
     // Save and print
     document.getElementById("btnSavePayment")?.addEventListener("click", () => {
@@ -1082,16 +1071,14 @@ class POSApp {
     // Reset when modal opens
     document.getElementById("paymentModal")?.addEventListener("show.bs.modal", () => {
       this.payment.reset();
-      document.getElementById("inputBayar").value = "";
-      document.getElementById("splitBillCheck").checked = false;
-      document.getElementById("splitCount").textContent = "2";
-      document.getElementById("splitBillSection").style.display = "none";
+      document.getElementById("inputTunai").value = "";
+      document.getElementById("inputTransfer").value = "";
       this._updatePaymentDisplay();
       document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("active"));
       document.querySelector('.method-btn[data-method="tunai"]')?.classList.add("active");
       document.querySelectorAll(".print-mode-btn").forEach(b => b.classList.remove("active"));
       document.querySelector('.print-mode-btn[data-mode="a5"]')?.classList.add("active");
-      setTimeout(() => document.getElementById("inputBayar")?.focus(), 200);
+      setTimeout(() => document.getElementById("inputTunai")?.focus(), 200);
     });
 
     // Cleanup after print
@@ -1134,11 +1121,6 @@ class POSApp {
     document.getElementById("changeAmount").textContent = formatRupiah(this.payment.kembalian);
     const saveBtn = document.getElementById("btnSavePayment");
     if (saveBtn) saveBtn.disabled = !this.payment.isLunas();
-  }
-
-  _updateSplitBill(count) {
-    const perPerson = Math.floor(this.cart.grandTotal / count);
-    document.getElementById("splitBillPerPerson").innerHTML = `<span>${formatRupiah(perPerson)} / orang</span>`;
   }
 
   // ---- TOAST ----
