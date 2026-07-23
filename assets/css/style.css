@@ -278,6 +278,22 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 .customer-item-btn.edit:hover { background: var(--primary-light); }
 .customer-item-btn.delete { color: var(--danger); }
 .customer-item-btn.delete:hover { background: #FEF2F2; }
+.riwayat-modal .modal-content { border: none; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-xl); }
+.riwayat-modal .modal-header { background: var(--slate-800); color: #fff; border: none; padding: 16px 24px; }
+.riwayat-modal .modal-header h5 { font-size: 16px; font-weight: 700; }
+.riwayat-modal .modal-body { padding: 0; }
+.riwayat-list { max-height: 500px; overflow-y: auto; }
+.riwayat-item { padding: 16px 24px; border-bottom: 1px solid var(--border); transition: var(--transition); }
+.riwayat-item:hover { background: var(--slate-50); }
+.riwayat-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.riwayat-customer { font-size: 14px; font-weight: 700; color: var(--slate-800); }
+.riwayat-date { font-size: 11px; color: var(--text-soft); }
+.riwayat-items { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 6px; }
+.riwayat-item-name { font-size: 12px; color: var(--text-soft); }
+.riwayat-item-qty { font-weight: 600; color: var(--text); }
+.riwayat-total { display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px dashed var(--border); }
+.riwayat-total-amount { font-size: 16px; font-weight: 800; color: var(--primary); }
+.riwayat-payment-methods { font-size: 11px; color: var(--text-soft); }
 .toast-msg { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--slate-800); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
 .toast-msg.show { opacity: 1; }
 

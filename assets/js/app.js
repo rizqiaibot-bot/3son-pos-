@@ -944,7 +944,7 @@ class POSApp {
     document.getElementById("sidebarRiwayat")?.addEventListener("click", () => {
       document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
       document.getElementById("sidebarRiwayat")?.classList.add("active");
-      this._showToast("Riwayat: coming soon");
+      this._openRiwayatModal();
     });
 
     // Sidebar Customer
@@ -1079,6 +1079,7 @@ class POSApp {
       if (!this.payment.isLunas()) return;
       const customer = this.selectedCustomer || "";
       this.printer.print(this.cart, this.payment, customer);
+      this._saveTransaction(customer);
       const modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
       modal?.hide();
       this.cart.clear();
@@ -1177,6 +1178,63 @@ class POSApp {
 
   _saveCustomers() {
     localStorage.setItem("3son_customers", JSON.stringify(this.customers));
+  }
+
+  _saveTransaction(customer) {
+    const tx = {
+      date: new Date().toISOString(),
+      customer: customer || "Umum",
+      items: this.cart.items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
+      subtotal: this.cart.subtotal,
+      diskon: this.cart.diskon,
+      ongkir: this.cart.ongkir,
+      total: this.cart.grandTotal,
+      tunai: this.payment.tunai || 0,
+      transfer: this.payment.transfer || 0,
+      method: this.payment.method
+    };
+    const history = this._loadTransactions();
+    history.unshift(tx);
+    if (history.length > 200) history.length = 200;
+    localStorage.setItem("3son_transactions", JSON.stringify(history));
+  }
+
+  _loadTransactions() {
+    try {
+      const raw = localStorage.getItem("3son_transactions");
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
+  _openRiwayatModal() {
+    const list = document.getElementById("riwayatList");
+    const history = this._loadTransactions();
+    if (!list) return;
+    if (history.length === 0) {
+      list.innerHTML = '<p class="text-muted text-center py-4">Belum ada transaksi</p>';
+    } else {
+      list.innerHTML = history.map((tx, i) => {
+        const d = new Date(tx.date);
+        const dateStr = d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+        const timeStr = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+        const itemsStr = tx.items.map(item => `<span class="riwayat-item-name">${item.nama} <span class="riwayat-item-qty">x${item.qty}</span></span>`).join("");
+        const pm = tx.tunai > 0 && tx.transfer > 0 ? `Tunai: ${formatRupiah(tx.tunai)} + Transfer: ${formatRupiah(tx.transfer)}` :
+                   tx.tunai > 0 ? `Tunai: ${formatRupiah(tx.tunai)}` : `Transfer: ${formatRupiah(tx.transfer)}`;
+        return `<div class="riwayat-item">
+          <div class="riwayat-item-header">
+            <span class="riwayat-customer">${tx.customer}</span>
+            <span class="riwayat-date">${dateStr} ${timeStr}</span>
+          </div>
+          <div class="riwayat-items">${itemsStr}</div>
+          <div class="riwayat-total">
+            <span class="riwayat-payment-methods">${pm}</span>
+            <span class="riwayat-total-amount">${formatRupiah(tx.total)}</span>
+          </div>
+        </div>`;
+      }).join("");
+    }
+    const modal = new bootstrap.Modal(document.getElementById("riwayatModal"));
+    modal.show();
   }
 
   // ---- PAYMENT MODAL ----
