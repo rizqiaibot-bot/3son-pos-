@@ -938,6 +938,13 @@ class POSApp {
       this._showToast("Riwayat: coming soon");
     });
 
+    // Sidebar Customer
+    document.getElementById("sidebarCustomer")?.addEventListener("click", () => {
+      document.querySelectorAll(".sidebar-item").forEach(s => s.classList.remove("active"));
+      document.getElementById("sidebarCustomer")?.classList.add("active");
+      this._showToast("Customer: coming soon");
+    });
+
     // Listen for product updates from admin panel
     window.addEventListener('3son:product-updated', () => {
       console.log('[3SON] product-updated event received, re-rendering...');
