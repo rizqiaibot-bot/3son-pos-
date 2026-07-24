@@ -305,8 +305,9 @@ class PrintManager {
     }).join("");
 
     return `<div class="receipt-thermal">
+  <div class="t-center" style="margin-bottom:4px"><img src="logo.png" alt="3SON" style="width:48px;height:48px;object-fit:contain" onerror="this.style.display='none'"></div>
   <div class="t-center t-logo">3SON</div>
-  <div class="t-center t-name">3SON Frozen Food</div>
+  <div class="t-center t-name">Frozen Foods</div>
   <div class="t-center t-sm">Perum Harapan Mulya, Cluster Efodia</div>
   <div class="t-center t-sm">Jl. Efodia 6 Blok 33 HN No.21</div>
   <div class="t-center t-sm">0812-8073-0102</div>
