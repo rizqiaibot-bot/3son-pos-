@@ -237,7 +237,7 @@ class PaymentManager {
     this.bayar = 0;
     this.tunai = 0;
     this.transfer = 0;
-    this.printMode = "a5";
+    this.printMode = "a4";
   }
 
   get kembalian() { return Math.max(0, this.bayar - this.cart.grandTotal); }
@@ -291,7 +291,7 @@ class PrintManager {
       container.className = "print-container thermal-mode";
     } else {
       container.innerHTML = this._buildInvoiceHTML(inv, cart, payment, cashier, customer);
-      container.className = "print-container a5-mode";
+      container.className = "print-container a4-mode";
     }
 
     setTimeout(() => window.print(), 200);
@@ -319,7 +319,8 @@ class PrintManager {
   <div class="t-row t-bold"><span>TOTAL</span><span>${formatRupiah(cart.grandTotal)}</span></div>
   ${cart.diskon > 0 ? `<div class="t-row"><span>Diskon</span><span>-${formatRupiah(cart.diskon)}</span></div>` : ""}
   ${cart.ongkir > 0 ? `<div class="t-row"><span>Ongkir</span><span>${formatRupiah(cart.ongkir)}</span></div>` : ""}
-  <div class="t-row"><span>${payment.method.toUpperCase()}</span><span>${formatRupiah(payment.bayar)}</span></div>
+  ${payment.tunai > 0 ? `<div class="t-row"><span>Tunai</span><span>${formatRupiah(payment.tunai)}</span></div>` : ""}
+  ${payment.transfer > 0 ? `<div class="t-row"><span>Transfer</span><span>${formatRupiah(payment.transfer)}</span></div>` : ""}
   <div class="t-row"><span>Kembali</span><span>${formatRupiah(payment.kembalian)}</span></div>
   <div class="t-divider">================================</div>
   <div class="t-center t-sm">Terima Kasih</div>
@@ -362,7 +363,7 @@ class PrintManager {
       </tr>`;
     }).join("");
 
-    return `<div class="receipt-a5">
+    return `<div class="receipt-a4">
 
   <!-- COMPANY HEADER -->
   <table class="header-table">
@@ -438,14 +439,22 @@ class PrintManager {
 
   <!-- PAYMENT INFO -->
   <table class="payment-info-table">
+    ${payment.tunai > 0 ? `<tr>
+      <td class="pi-label">Tunai</td>
+      <td class="pi-colon">:</td>
+      <td class="pi-value">${formatRupiah(payment.tunai)}</td>
+      <td class="pi-spacer"></td>
+    </tr>` : ""}
+    ${payment.transfer > 0 ? `<tr>
+      <td class="pi-label">Transfer</td>
+      <td class="pi-colon">:</td>
+      <td class="pi-value">${formatRupiah(payment.transfer)}</td>
+      <td class="pi-spacer"></td>
+    </tr>` : ""}
     <tr>
-      <td class="pi-label">Bayar</td>
+      <td class="pi-label">Total Bayar</td>
       <td class="pi-colon">:</td>
       <td class="pi-value">${formatRupiah(payment.bayar)}</td>
-      <td class="pi-spacer"></td>
-      <td class="pi-label">Metode</td>
-      <td class="pi-colon">:</td>
-      <td class="pi-value">${payment.method.toUpperCase()}</td>
     </tr>
     <tr>
       <td class="pi-label">Kembali</td>
@@ -1097,7 +1106,7 @@ class POSApp {
       document.querySelectorAll(".method-btn").forEach(b => b.classList.remove("active"));
       document.querySelector('.method-btn[data-method="tunai"]')?.classList.add("active");
       document.querySelectorAll(".print-mode-btn").forEach(b => b.classList.remove("active"));
-      document.querySelector('.print-mode-btn[data-mode="a5"]')?.classList.add("active");
+      document.querySelector('.print-mode-btn[data-mode="a4"]')?.classList.add("active");
       setTimeout(() => document.getElementById("inputTunai")?.focus(), 200);
     });
 
