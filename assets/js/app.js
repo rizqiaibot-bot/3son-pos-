@@ -338,30 +338,14 @@ class PrintManager {
     const cartMap = {};
     cart.items.forEach(i => { cartMap[i.id] = i; });
 
-    const tableRows = slots.map(slot => {
-      const cartItem = cartMap[slot.productId];
-      const qty = cartItem ? cartItem.qty : "";
-      const price = cartItem ? formatNumber(cartItem.harga) : "";
-      const subtotal = cartItem ? formatNumber(cartItem.harga * cartItem.qty) : "";
-
-      if (slot.no === 34) {
-        return `<tr>
-          <td class="cell-no">34</td>
-          <td class="cell-produk">Ongkir</td>
-          <td class="cell-qty"></td>
-          <td class="cell-harga">${cart.ongkir > 0 ? formatNumber(cart.ongkir) : ""}</td>
-          <td class="cell-total">${cart.ongkir > 0 ? formatNumber(cart.ongkir) : ""}</td>
-        </tr>`;
-      }
-
-      return `<tr>
-        <td class="cell-no">${slot.no}</td>
-        <td class="cell-produk">${slot.nama}</td>
-        <td class="cell-qty">${qty}</td>
-        <td class="cell-harga">${price}</td>
-        <td class="cell-total">${subtotal}</td>
-      </tr>`;
-    }).join("");
+    const tableRows = cart.items.map((item, idx) =>
+      `<div class="a4-item-row">
+        <span class="a4-item-no">${idx + 1}.</span>
+        <span class="a4-item-name">${item.nama}</span>
+        <span class="a4-item-qty">${item.qty} x ${formatRupiah(item.harga)}</span>
+        <span class="a4-item-total">${formatRupiah(item.harga * item.qty)}</span>
+      </div>`
+    ).join("");
 
     return `<div class="receipt-a4">
 
@@ -397,100 +381,38 @@ class PrintManager {
     </tr>
   </table>
 
-  <!-- PRODUCT TABLE -->
-  <table class="product-table">
-    <thead>
-      <tr>
-        <th class="col-no">No</th>
-        <th class="col-produk">Produk</th>
-        <th class="col-qty">Qty</th>
-        <th class="col-harga">Harga</th>
-        <th class="col-total">Total</th>
-      </tr>
-    </thead>
-    <tbody>
+  <!-- PRODUCT LIST (bersih, tanpa tabel) -->
+  <div class="a4-section">
+    <div class="a4-section-title">Daftar Produk</div>
+    <div class="a4-items">
       ${tableRows}
-    </tbody>
-  </table>
+    </div>
+  </div>
 
   <!-- TOTALS -->
-  <table class="totals-table">
-    <tr>
-      <td class="tt-label">Subtotal</td>
-      <td class="tt-colon">:</td>
-      <td class="tt-value">${formatRupiah(cart.subtotal)}</td>
-    </tr>
-    <tr>
-      <td class="tt-label">Diskon</td>
-      <td class="tt-colon">:</td>
-      <td class="tt-value">${formatRupiah(cart.diskon)}</td>
-    </tr>
-    <tr>
-      <td class="tt-label">Ongkir</td>
-      <td class="tt-colon">:</td>
-      <td class="tt-value">${formatRupiah(cart.ongkir)}</td>
-    </tr>
-    <tr class="tt-grand">
-      <td class="tt-label">Grand Total</td>
-      <td class="tt-colon">:</td>
-      <td class="tt-value">${formatRupiah(cart.grandTotal)}</td>
-    </tr>
-  </table>
+  <div class="a4-totals">
+    <div class="a4-total-row">
+      <span>Subtotal</span>
+      <span>${formatRupiah(cart.subtotal)}</span>
+    </div>
+    ${cart.diskon > 0 ? `<div class="a4-total-row"><span>Diskon</span><span>-${formatRupiah(cart.diskon)}</span></div>` : ""}
+    ${cart.ongkir > 0 ? `<div class="a4-total-row"><span>Ongkir</span><span>${formatRupiah(cart.ongkir)}</span></div>` : ""}
+    <div class="a4-total-row a4-grand">
+      <span>Grand Total</span>
+      <span>${formatRupiah(cart.grandTotal)}</span>
+    </div>
+  </div>
 
-  <!-- PAYMENT INFO -->
-  <table class="payment-info-table">
-    ${payment.tunai > 0 ? `<tr>
-      <td class="pi-label">Tunai</td>
-      <td class="pi-colon">:</td>
-      <td class="pi-value">${formatRupiah(payment.tunai)}</td>
-      <td class="pi-spacer"></td>
-    </tr>` : ""}
-    ${payment.transfer > 0 ? `<tr>
-      <td class="pi-label">Transfer</td>
-      <td class="pi-colon">:</td>
-      <td class="pi-value">${formatRupiah(payment.transfer)}</td>
-      <td class="pi-spacer"></td>
-    </tr>` : ""}
-    <tr>
-      <td class="pi-label">Total Bayar</td>
-      <td class="pi-colon">:</td>
-      <td class="pi-value">${formatRupiah(payment.bayar)}</td>
-    </tr>
-    <tr>
-      <td class="pi-label">Kembali</td>
-      <td class="pi-colon">:</td>
-      <td class="pi-value">${formatRupiah(payment.kembalian)}</td>
-    </tr>
-  </table>
+  <!-- PAYMENT -->
+  <div class="a4-totals" style="margin-top:6px;border-top:1px dashed #ccc;padding-top:8px">
+    ${payment.tunai > 0 ? `<div class="a4-total-row"><span>Tunai</span><span>${formatRupiah(payment.tunai)}</span></div>` : ""}
+    ${payment.transfer > 0 ? `<div class="a4-total-row"><span>Transfer</span><span>${formatRupiah(payment.transfer)}</span></div>` : ""}
+    <div class="a4-total-row"><span>Total Bayar</span><span>${formatRupiah(payment.bayar)}</span></div>
+    <div class="a4-total-row"><span>Kembali</span><span>${formatRupiah(payment.kembalian)}</span></div>
+  </div>
 
   <!-- FOOTER -->
-  <div class="footer-section">
-    <div class="footer-notes">
-      <p class="fn-title">Catatan:</p>
-      <p>Cek dianggap lunas setelah uang diterima.</p>
-      <p>Transfer dianggap lunas setelah dana masuk rekening.</p>
-    </div>
-
-    <table class="footer-bottom">
-      <tr>
-        <td class="fb-bank" width="50%">
-          <p class="fb-title">Pembayaran via:</p>
-          <p><strong>BCA</strong></p>
-          <p>a/n Three Son Frozen Food CV</p>
-          <p>No. Rek: (rekening BCA)</p>
-        </td>
-        <td class="fb-sign" width="50%">
-          <p class="fb-sign-text">Hormat Kami,</p>
-          <p class="fb-sign-space"><br><br><br></p>
-          <p class="fb-sign-line">____________________</p>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="print-footer-line">
-    ${inv.number} | ${inv.date} ${inv.time} | Kasir: ${cashier} | 3SON Frozen Food
-  </div>
+  <div class="a4-footer">${inv.number} | ${inv.date} ${inv.time} | Kasir: ${cashier} | 3SON Frozen Food</div>
 </div>`;
   }
 

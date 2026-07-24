@@ -308,3 +308,16 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
 @media print { body > :not(#printContainer) { visibility: hidden !important; display: none !important; } .bottom-nav, .mobile-fab, .mobile-cart, .sidebar-left { display: none !important; } #printContainer { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: #fff; } #printContainer * { visibility: visible !important; } #printContainer td, #printContainer th, #printContainer tr, #printContainer tbody, #printContainer thead, #printContainer tfoot { display: revert; } #printContainer table { display: table; } #printContainer img { display: inline; } #printContainer span { display: inline; } #printContainer p { display: block; } #printContainer .receipt-a4 { display: block !important; } #printContainer .receipt-thermal { display: block !important; } #printContainer .hl-logo-row { display: flex !important; } #printContainer .hl-logo { display: block !important; } #printContainer .hl-brand { display: block !important; } #printContainer .hl-address { display: block !important; } #printContainer .header-left, #printContainer .header-right { display: table-cell !important; } #printContainer .footer-notes { display: block !important; } #printContainer .footer-bottom { display: table !important; } #printContainer .fb-bank, #printContainer .fb-sign { display: table-cell !important; } #printContainer .t-row { display: flex !important; justify-content: space-between; } #printContainer .t-detail { display: block !important; } #printContainer .totals-table { display: table !important; } #printContainer .product-table { display: table !important; } #printContainer .info-table { display: table !important; } #printContainer .payment-info-table { display: table !important; } .print-container.a4-mode .receipt-thermal { display: none !important; } .print-container.thermal-mode .receipt-a4 { display: none !important; } }
 
+
+.a4-section { margin-top: 14px; }
+.a4-section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-800); border-bottom: 2px solid var(--slate-800); padding-bottom: 6px; margin-bottom: 10px; }
+.a4-items { display: flex; flex-direction: column; gap: 6px; }
+.a4-item-row { display: flex; align-items: baseline; font-size: 11px; padding: 4px 0; border-bottom: 1px dotted var(--slate-200); }
+.a4-item-no { width: 28px; color: var(--slate-400); font-weight: 500; }
+.a4-item-name { flex: 1; font-weight: 600; }
+.a4-item-qty { width: 120px; text-align: right; color: var(--slate-500); font-size: 10px; }
+.a4-item-total { width: 100px; text-align: right; font-weight: 700; }
+.a4-totals { margin-top: 12px; }
+.a4-total-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+.a4-total-row.a4-grand { font-size: 15px; font-weight: 900; border-top: 2px solid var(--slate-800); padding-top: 6px; margin-top: 4px; }
+.a4-footer { margin-top: 16px; padding-top: 6px; border-top: 1px solid var(--slate-200); font-size: 8px; color: var(--slate-400); text-align: center; }
