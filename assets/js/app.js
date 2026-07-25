@@ -34,56 +34,74 @@ class ProductManager {
 
   async load() {
     try {
-      const res = await fetch("data/produk.json");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      this.produk = data.produk;
-      this.kategori = data.kategori;
-      this.invoiceSlots = data.invoiceSlots || [];
+      const data = await db.select("pos_produk");
+      this.produk = data;
     } catch (err) {
-      console.warn("Fetch JSON gagal, gunakan data embed:", err.message);
+      console.warn("Supabase gagal, gunakan data embed:", err.message);
       this._loadFallback();
     }
-    this._loadOverrides();
-    this._applyOverrides();
+    this.kategori = [
+      { id: "favorit", nama: "Favorit" },
+      { id: "bakso", nama: "Bakso" },
+      { id: "olahan-ikan", nama: "Olahan Ikan" },
+      { id: "dimsum", nama: "Dimsum" },
+      { id: "pempek", nama: "Pempek" },
+      { id: "sosis", nama: "Sosis" },
+      { id: "kentang", nama: "Kentang" },
+      { id: "nugget", nama: "Nugget" },
+      { id: "lainnya", nama: "Lainnya" }
+    ];
+    this._migrateLocalOverrides();
   }
 
-  _loadOverrides() {
+  async _migrateLocalOverrides() {
     try {
       const raw = localStorage.getItem("3son_product_overrides");
-      this._overrides = raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      this._overrides = {};
+      if (!raw) return;
+      const overrides = JSON.parse(raw);
+      for (const [id, data] of Object.entries(overrides)) {
+        await db.upsert("pos_produk", { id, ...data });
+        const prod = this.produk.find(p => p.id === id);
+        if (prod) Object.assign(prod, data);
+      }
+      localStorage.removeItem("3son_product_overrides");
+      console.log("[3SON] Migrated local overrides to Supabase");
+    } catch (e) {}
+  }
+
+  async saveProduct(id, data) {
+    const cleaned = { ...data, id };
+    if (cleaned.gambar && cleaned.gambar.startsWith("data:")) {
+      const url = await db.uploadImage(cleaned.gambar, id);
+      cleaned.gambar = url || cleaned.gambar;
     }
-  }
-
-  _saveOverrides() {
-    localStorage.setItem("3son_product_overrides", JSON.stringify(this._overrides));
-  }
-
-  _applyOverrides() {
-    Object.keys(this._overrides).forEach(id => {
-      const prod = this.produk.find(p => p.id === id);
-      if (prod) Object.assign(prod, this._overrides[id]);
-    });
-  }
-
-  saveProduct(id, data) {
-    this._overrides[id] = { ...this._overrides[id], ...data };
-    this._saveOverrides();
+    await db.upsert("pos_produk", cleaned);
     const prod = this.produk.find(p => p.id === id);
-    if (prod) Object.assign(prod, data);
+    if (prod) Object.assign(prod, cleaned);
   }
 
   async resetOverrides() {
-    this._overrides = {};
-    localStorage.removeItem("3son_product_overrides");
+    await db.delete("pos_produk", "id=neq.dummy-delete-none");
+    await db.insert("pos_produk", this._defaultProducts());
     await this.load();
     return this;
   }
 
+  _defaultProducts() {
+    return [
+      { id:"p001",nama:"Bakso Ikan",harga:50000,stok:10,kategori:"bakso",favorit:true,gambar:"assets/img/default-product.svg" },
+      { id:"p002",nama:"Bakso Super",harga:55000,stok:8,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" },
+      { id:"p003",nama:"Otak-Otak",harga:48000,stok:12,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" },
+      { id:"p004",nama:"Siomay Ikan",harga:45000,stok:15,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" },
+      { id:"p005",nama:"Kaki Naga",harga:52000,stok:7,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" },
+      { id:"p006",nama:"Fish Roll",harga:47000,stok:9,kategori:"bakso",favorit:true,gambar:"assets/img/default-product.svg" },
+      { id:"p007",nama:"Kekian",harga:43000,stok:11,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" },
+      { id:"p008",nama:"Nugget Ikan",harga:40000,stok:20,kategori:"bakso",favorit:false,gambar:"assets/img/default-product.svg" }
+    ];
+  }
+
   getOverrides() {
-    return { ...this._overrides };
+    return {};
   }
 
   _loadFallback() {
@@ -252,37 +270,47 @@ class PaymentManager {
 class PrintManager {
   constructor(productManager) {
     this.products = productManager;
-    this.invoiceCounter = this._loadCounter();
+    this.invoiceCounter = 0;
+    this._lastInvoice = null;
   }
 
-  _loadCounter() {
-    const saved = localStorage.getItem("3son_invoice_counter");
-    return saved ? parseInt(saved, 10) : 1;
+  async _loadCounter() {
+    try {
+      const data = await db.select("pos_invoice_counter", "id=eq.1");
+      this.invoiceCounter = data?.[0]?.counter || 0;
+    } catch (e) {
+      const saved = localStorage.getItem("3son_invoice_counter");
+      this.invoiceCounter = saved ? parseInt(saved, 10) : 1;
+    }
   }
 
-  _saveCounter() {
-    localStorage.setItem("3son_invoice_counter", this.invoiceCounter.toString());
+  async _saveCounter() {
+    try {
+      await db.upsert("pos_invoice_counter", { id: 1, counter: this.invoiceCounter });
+    } catch (e) {}
   }
 
-  generateInvoice() {
+  async generateInvoice() {
+    await this._loadCounter();
     this.invoiceCounter++;
-    this._saveCounter();
+    await this._saveCounter();
     const now = new Date();
     const pad = n => n.toString().padStart(2, "0");
     const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
-    return {
+    this._lastInvoice = {
       number: `INV-${dateStr}-${this.invoiceCounter.toString().padStart(4, "0")}`,
       date: `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`,
       time: `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`,
       tanggalPanjang: new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(now)
     };
+    return this._lastInvoice;
   }
 
-  print(cart, payment, customer) {
+  async print(cart, payment, customer) {
     const container = document.getElementById("printContainer");
     if (!container) return;
 
-    const inv = this.generateInvoice();
+    const inv = await this.generateInvoice();
     const cashier = document.getElementById("cashierName")?.textContent || "Admin";
     const isThermal = payment.printMode === "thermal";
 
@@ -586,15 +614,14 @@ class ProductAdmin {
     editModal.show();
   }
 
-  _deleteProduct() {
+  async _deleteProduct() {
     const id = document.getElementById("adminEditId").value;
     const prod = this.pm.findById(id);
     if (!prod) return;
     if (!confirm(`Hapus produk "${prod.nama}"? Tindakan ini tidak bisa dibatalkan.`)) return;
 
+    await db.delete("pos_produk", `id=eq.${encodeURIComponent(id)}`);
     this.pm.produk = this.pm.produk.filter(p => p.id !== id);
-    delete this.pm._overrides[id];
-    this.pm._saveOverrides();
 
     const editModal = bootstrap.Modal.getInstance(document.getElementById("adminEditModal"));
     editModal?.hide();
@@ -618,7 +645,7 @@ class ProductAdmin {
     }
   }
 
-  _saveEdit() {
+  async _saveEdit() {
     console.log('[3SON] _saveEdit called!');
     if (this._saving) return;
     this._saving = true;
@@ -696,11 +723,7 @@ class POSApp {
     this.searchQuery = "";
     this.searchTimeout = null;
     this.selectedCustomer = "";
-    this.customers = [
-      "Toko Berkah", "Warung Sari", "UD Maju Jaya", "Toko Serba Ada",
-      "Warung Mbak Sri", "Toko Barokah", "Agen Frozen A", "Agen Frozen B",
-      "Pedagang Pasar", "Warung Kelontong", "Resto Sederhana", "Kantin Sekolah"
-    ];
+    this.customers = [];
     this._loadCustomers();
   }
 
@@ -708,6 +731,7 @@ class POSApp {
   async init() {
     await this.products.load();
     this.printer.products = this.products;
+    await this.printer._loadCounter();
     this._renderProducts();
     this._renderCart();
     this._startClock();
@@ -1007,11 +1031,11 @@ class POSApp {
     document.getElementById("inputTransfer")?.addEventListener("input", updateTotalBayar);
 
     // Save and print
-    document.getElementById("btnSavePayment")?.addEventListener("click", () => {
+    document.getElementById("btnSavePayment")?.addEventListener("click", async () => {
       if (!this.payment.isLunas()) return;
       const customer = this.selectedCustomer || "";
-      this.printer.print(this.cart, this.payment, customer);
-      this._saveTransaction(customer);
+      await this.printer.print(this.cart, this.payment, customer);
+      await this._saveTransaction(customer);
       const modal = bootstrap.Modal.getInstance(document.getElementById("paymentModal"));
       modal?.hide();
       this.cart.clear();
@@ -1101,20 +1125,41 @@ class POSApp {
     });
   }
 
-  _loadCustomers() {
+  async _loadCustomers() {
     try {
-      const saved = localStorage.getItem("3son_customers");
-      if (saved) this.customers = JSON.parse(saved);
-    } catch (e) {}
+      const data = await db.select("pos_customer");
+      this.customers = data.map(c => c.nama);
+      if (this.customers.length === 0) {
+        const defaults = ["Toko Berkah", "Warung Sari", "UD Maju Jaya", "Toko Serba Ada",
+          "Warung Mbak Sri", "Toko Barokah", "Agen Frozen A", "Agen Frozen B",
+          "Pedagang Pasar", "Warung Kelontong", "Resto Sederhana", "Kantin Sekolah"];
+        for (const nama of defaults) {
+          await db.insert("pos_customer", { nama });
+        }
+        this.customers = defaults;
+      }
+    } catch (e) {
+      this.customers = ["Toko Berkah", "Warung Sari", "UD Maju Jaya", "Toko Serba Ada",
+        "Warung Mbak Sri", "Toko Barokah", "Agen Frozen A", "Agen Frozen B",
+        "Pedagang Pasar", "Warung Kelontong", "Resto Sederhana", "Kantin Sekolah"];
+    }
   }
 
-  _saveCustomers() {
-    localStorage.setItem("3son_customers", JSON.stringify(this.customers));
+  async _saveCustomers() {
+    try {
+      await db.delete("pos_customer", "id=neq.dummy-delete-none");
+      for (const nama of this.customers) {
+        await db.insert("pos_customer", { nama });
+      }
+    } catch (e) {
+      console.warn("Gagal simpan customer:", e);
+    }
   }
 
-  _saveTransaction(customer) {
+  async _saveTransaction(customer) {
+    const inv = this.printer._lastInvoice || { number: "INV-...", date: "..." };
     const tx = {
-      date: new Date().toISOString(),
+      invoice: inv.number,
       customer: customer || "Umum",
       items: this.cart.items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
       subtotal: this.cart.subtotal,
@@ -1125,31 +1170,30 @@ class POSApp {
       transfer: this.payment.transfer || 0,
       method: this.payment.method
     };
-    const history = this._loadTransactions();
-    history.unshift(tx);
-    if (history.length > 200) history.length = 200;
-    localStorage.setItem("3son_transactions", JSON.stringify(history));
+    try { await db.insert("pos_transaksi", tx); } catch (e) {
+      console.warn("Gagal simpan transaksi:", e);
+    }
   }
 
-  _loadTransactions() {
+  async _loadTransactions() {
     try {
-      const raw = localStorage.getItem("3son_transactions");
-      return raw ? JSON.parse(raw) : [];
+      return await db.select("pos_transaksi", "order=created_at.desc&limit=200");
     } catch (e) { return []; }
   }
 
-  _openRiwayatModal() {
+  async _openRiwayatModal() {
     const list = document.getElementById("riwayatList");
-    const history = this._loadTransactions();
+    const history = await this._loadTransactions();
     if (!list) return;
     if (history.length === 0) {
       list.innerHTML = '<p class="text-muted text-center py-4">Belum ada transaksi</p>';
     } else {
       list.innerHTML = history.map((tx, i) => {
-        const d = new Date(tx.date);
+        const d = new Date(tx.created_at);
         const dateStr = d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
         const timeStr = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-        const itemsStr = tx.items.map(item => `<span class="riwayat-item-name">${item.nama} <span class="riwayat-item-qty">x${item.qty}</span></span>`).join("");
+        const itemsData = Array.isArray(tx.items) ? tx.items : (typeof tx.items === "string" ? JSON.parse(tx.items) : []);
+        const itemsStr = itemsData.map(item => `<span class="riwayat-item-name">${item.nama} <span class="riwayat-item-qty">x${item.qty}</span></span>`).join("");
         const pm = tx.tunai > 0 && tx.transfer > 0 ? `Tunai: ${formatRupiah(tx.tunai)} + Transfer: ${formatRupiah(tx.transfer)}` :
                    tx.tunai > 0 ? `Tunai: ${formatRupiah(tx.tunai)}` : `Transfer: ${formatRupiah(tx.transfer)}`;
         return `<div class="riwayat-item">
@@ -1197,8 +1241,113 @@ class POSApp {
 // =====================================================
 // BOOTSTRAP
 // =====================================================
-document.addEventListener("DOMContentLoaded", () => {
-  window.posApp = new POSApp();
-  window.posApp.init();
+document.addEventListener("DOMContentLoaded", async () => {
+  const loginOverlay = document.getElementById("loginOverlay");
+  const posContainer = document.querySelector(".pos-container");
+
+  // ---- Auth handlers ----
+  function getCashierName(user) {
+    if (user?.user_metadata?.display_name) return user.user_metadata.display_name;
+    if (user?.email) return user.email.split("@")[0];
+    return "Admin";
+  }
+
+  function showPOS() {
+    if (loginOverlay) loginOverlay.style.display = "none";
+    if (posContainer) posContainer.classList.remove("hidden");
+    window.posApp = new POSApp();
+    window.posApp.init();
+  }
+
+  function showLogin() {
+    if (posContainer) posContainer.classList.add("hidden");
+    if (loginOverlay) loginOverlay.style.display = "flex";
+  }
+
+  // Login form
+  document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const btn = document.getElementById("loginBtn");
+    const errEl = document.getElementById("loginError");
+    const isRegister = btn.dataset.mode === "register";
+
+    if (!email || !password) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+    errEl.classList.remove("show");
+    errEl.textContent = "";
+
+    try {
+      if (isRegister) {
+        const result = await db.signUp(email, password);
+        if (!result.access_token) {
+          errEl.textContent = "Cek email kamu untuk verifikasi, lalu login.";
+          errEl.classList.add("show");
+          setAuthMode("login");
+          btn.disabled = false;
+          return;
+        }
+      }
+      document.getElementById("cashierName").textContent = getCashierName(db.user);
+      showPOS();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add("show");
+      btn.innerHTML = isRegister ? '<i class="bi bi-person-plus"></i> Daftar' : '<i class="bi bi-box-arrow-in-right"></i> Masuk';
+      btn.disabled = false;
+    }
+  });
+
+  // Toggle Login / Register
+  function setAuthMode(mode) {
+    const btn = document.getElementById("loginBtn");
+    const footer = document.getElementById("loginFooter");
+    if (mode === "register") {
+      btn.dataset.mode = "register";
+      btn.innerHTML = '<i class="bi bi-person-plus"></i> Daftar';
+      if (footer) footer.innerHTML = 'Sudah punya akun? <a href="#" id="toggleRegister">Masuk</a>';
+    } else {
+      btn.dataset.mode = "login";
+      btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Masuk';
+      if (footer) footer.innerHTML = 'Belum punya akun? <a href="#" id="toggleRegister">Daftar</a>';
+    }
+    document.getElementById("toggleRegister")?.addEventListener("click", toggleAuthMode);
+  }
+
+  function toggleAuthMode(e) {
+    e.preventDefault();
+    const btn = document.getElementById("loginBtn");
+    const newMode = btn.dataset.mode === "register" ? "login" : "register";
+    setAuthMode(newMode);
+  }
+
+  document.getElementById("toggleRegister")?.addEventListener("click", toggleAuthMode);
+
+  // Logout
+  document.getElementById("btnLogout")?.addEventListener("click", async () => {
+    if (!confirm("Keluar dari 3SON POS?")) return;
+    await db.signOut();
+    if (window.posApp) {
+      window.posApp.cart.clear();
+    }
+    showLogin();
+  });
+
+  // Try restore session
+  const restored = await db.restoreSession();
+  if (restored) {
+    document.getElementById("cashierName").textContent = getCashierName(db.user);
+    showPOS();
+  } else {
+    showLogin();
+    const savedEmail = localStorage.getItem("3son_last_email");
+    if (savedEmail) {
+      document.getElementById("loginEmail").value = savedEmail;
+      document.getElementById("loginPassword").focus();
+    }
+  }
 });
 
