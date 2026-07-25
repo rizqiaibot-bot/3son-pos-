@@ -23,12 +23,23 @@ class POSSupabase {
   setAuth(token, refreshToken, user) {
     this._authToken = token || null;
     this._user = user || null;
+    console.log("[3SON] setAuth called, token present:", !!token, "refreshToken present:", !!refreshToken, "user present:", !!user);
     if (token) {
       const email = user?.email || (this._user?.email) || null;
-      if (email) localStorage.setItem("3son_last_email", email);
-      localStorage.setItem("3son_auth", JSON.stringify({
-        token, refreshToken, user: this._user, ts: Date.now()
-      }));
+      if (email) {
+        try { localStorage.setItem("3son_last_email", email); }
+        catch(e) { console.error("[3SON] Failed to save last_email:", e.message); }
+      }
+      try {
+        const data = JSON.stringify({
+          token, refreshToken, user: this._user, ts: Date.now()
+        });
+        console.log("[3SON] Saving session:", data.substring(0, 80));
+        localStorage.setItem("3son_auth", data);
+        console.log("[3SON] Session saved, verify read:", !!localStorage.getItem("3son_auth"));
+      } catch(e) {
+        console.error("[3SON] Failed to save session:", e.message);
+      }
       this._startRefreshTimer(refreshToken);
     }
   }
