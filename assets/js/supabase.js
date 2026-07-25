@@ -123,60 +123,64 @@ class POSSupabase {
   async restoreSession() {
     try {
       const raw = localStorage.getItem("3son_auth");
-      console.log("[3SON] restoreSession: localStorage has data?", !!raw);
-      if (!raw) return false;
+      if (!raw) { console.log("[3SON] No stored session"); return false; }
 
       const saved = JSON.parse(raw);
-      console.log("[3SON] saved token:", !!saved.token, "refreshToken:", !!saved.refreshToken, "age:", ((Date.now() - saved.ts) / 1000).toFixed(0) + "s");
 
-      if (Date.now() - saved.ts > 7 * 24 * 3600 * 1000) {
-        console.warn("[3SON] Session > 7 days old, clearing");
-        this.clearAuth(); return false;
-      }
+      if (!saved.token) { console.warn("[3SON] Stored session has no token"); this.clearAuth(); return false; }
 
-      if (!saved.token) {
-        console.warn("[3SON] No token in saved session");
-        this.clearAuth(); return false;
-      }
+      console.log("[3SON] Restoring session, token age:", ((Date.now() - saved.ts) / 1000).toFixed(0) + "s");
 
       this._authToken = saved.token;
       this._user = saved.user;
 
-      const tryToken = async (token) => {
-        const res = await fetch(`${this.url}/rest/v1/pos_produk?select=id&limit=1`, {
-          headers: { "apikey": this.key, "Authorization": `Bearer ${token}` }
-        });
-        console.log("[3SON] Token test on REST API:", res.status, res.ok);
-        return res.ok;
-      };
-
-      const isTokenValid = await tryToken(saved.token);
-      if (isTokenValid) {
-        console.log("[3SON] Saved token valid, session restored");
-        this.setAuth(saved.token, saved.refreshToken, saved.user);
-        return true;
-      }
-
       if (saved.refreshToken) {
-        try {
-          console.log("[3SON] Trying refresh token...");
-          const result = await this._refreshToken(saved.refreshToken);
-          console.log("[3SON] Refresh succeeded, new token obtained");
-          this.setAuth(result.access_token, result.refresh_token, this._user || result.user);
-          return true;
-        } catch (e) {
-          console.error("[3SON] Refresh failed:", e.message);
-        }
+        this._startRefreshTimer(saved.refreshToken);
       }
 
-      console.error("[3SON] Session restore failed — both token & refresh failed");
-      this.clearAuth();
-      return false;
+      this._bgValidate(saved);
+
+      return true;
     } catch (e) {
       console.error("[3SON] Session restore crashed:", e.message);
       this.clearAuth();
       return false;
     }
+  }
+
+  async _bgValidate(saved) {
+    try {
+      const res = await fetch(`${this.url}/rest/v1/pos_produk?select=id&limit=1`, {
+        headers: { "apikey": this.key, "Authorization": `Bearer ${saved.token}` }
+      });
+      if (res.ok) {
+        console.log("[3SON] BG validate: token valid");
+        if (saved.refreshToken) {
+          const result = await this._refreshToken(saved.refreshToken);
+          this.setAuth(result.access_token, result.refresh_token, result.user || this._user);
+        } else {
+          this.setAuth(saved.token, null, saved.user);
+        }
+        return;
+      }
+    } catch (e) {
+      console.warn("[3SON] BG validate: token check failed, trying refresh:", e.message);
+    }
+
+    if (saved.refreshToken) {
+      try {
+        const result = await this._refreshToken(saved.refreshToken);
+        this.setAuth(result.access_token, result.refresh_token, result.user || this._user);
+        console.log("[3SON] BG validate: refresh OK");
+        return;
+      } catch (e) {
+        console.error("[3SON] BG validate: refresh failed:", e.message);
+      }
+    }
+
+    console.error("[3SON] BG validate: session dead, forcing logout");
+    this.clearAuth();
+    location.reload();
   }
 
   async _request(path, options = {}) {
