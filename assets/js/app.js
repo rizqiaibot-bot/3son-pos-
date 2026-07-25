@@ -1290,6 +1290,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           btn.disabled = false;
           return;
         }
+      } else {
+        await db.signIn(email, password);
       }
       document.getElementById("cashierName").textContent = getCashierName(db.user);
       showPOS();
