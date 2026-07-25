@@ -23,10 +23,11 @@ class POSSupabase {
   setAuth(token, refreshToken, user) {
     this._authToken = token || null;
     this._user = user || null;
-    if (token && user?.email) {
-      localStorage.setItem("3son_last_email", user.email);
+    if (token) {
+      const email = user?.email || (this._user?.email) || null;
+      if (email) localStorage.setItem("3son_last_email", email);
       localStorage.setItem("3son_auth", JSON.stringify({
-        token, refreshToken, user, ts: Date.now()
+        token, refreshToken, user: this._user, ts: Date.now()
       }));
       this._startRefreshTimer(refreshToken);
     }
@@ -51,12 +52,14 @@ class POSSupabase {
   _startRefreshTimer(refreshToken) {
     if (this._refreshTimer) clearInterval(this._refreshTimer);
     if (!refreshToken) return;
+    let currentRefreshToken = refreshToken;
     this._refreshTimer = setInterval(async () => {
       try {
-        const result = await this._refreshToken(refreshToken);
-        this.setAuth(result.access_token, result.refresh_token, this._user);
+        const result = await this._refreshToken(currentRefreshToken);
+        currentRefreshToken = result.refresh_token;
+        this.setAuth(result.access_token, result.refresh_token, this._user || result.user);
       } catch (e) {
-        this.clearAuth();
+        console.warn("[3SON] Background token refresh failed:", e.message);
       }
     }, 30 * 60 * 1000);
   }
@@ -124,9 +127,14 @@ class POSSupabase {
       const saved = JSON.parse(raw);
       const age = Date.now() - saved.ts;
       if (age > 24 * 3600 * 1000) { this.clearAuth(); return false; }
+      if (!saved.token || !saved.refreshToken) {
+        console.warn("[3SON] Stored session missing token or refreshToken");
+        this.clearAuth();
+        return false;
+      }
       this._authToken = saved.token;
       this._user = saved.user;
-      this._startRefreshTimer(saved.refreshToken);
+
       try {
         const userRes = await fetch(`${this.url}/auth/v1/user`, {
           method: "GET",
@@ -145,12 +153,14 @@ class POSSupabase {
           const result = await this._refreshToken(saved.refreshToken);
           this.setAuth(result.access_token, result.refresh_token, this._user || result.user);
         } catch (e2) {
+          console.error("[3SON] Session restore failed, both token & refresh failed:", e2.message);
           this.clearAuth();
           return false;
         }
       }
       return true;
     } catch (e) {
+      console.error("[3SON] Session restore error:", e.message);
       this.clearAuth();
       return false;
     }
