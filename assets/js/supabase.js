@@ -3,7 +3,7 @@
    ============================================================ */
 
 const SUPABASE_URL = "https://dsryxvelpbuitjmnswxc.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcnl4dmVsYnVpdXJqbW5zd3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NDcwODAsImV4cCI6MjA5NjIyMzA4MH0.3P8p3oZZ1WBaulyD6Adq0uE4gVKsJr2OimXR784El9o";
+const SUPABASE_ANON_KEY = "sb_publishable_oc4vBssr6xcYb32msMjPKQ_qgCgpEM4";
 
 // ============================================================
 // Minimal Supabase Client (no dependency)
@@ -47,12 +47,14 @@ class POSSupabase {
   }
 
   _headers() {
-    const token = this._authToken || this.key;
-    return {
+    const h = {
       "Content-Type": "application/json",
-      "apikey": this.key,
-      "Authorization": `Bearer ${token}`
+      "apikey": this.key
     };
+    if (this._authToken) {
+      h["Authorization"] = `Bearer ${this._authToken}`;
+    }
+    return h;
   }
 
   _startRefreshTimer(refreshToken) {
