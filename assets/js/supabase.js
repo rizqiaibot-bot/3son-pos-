@@ -123,44 +123,57 @@ class POSSupabase {
   async restoreSession() {
     try {
       const raw = localStorage.getItem("3son_auth");
+      console.log("[3SON] restoreSession: localStorage has data?", !!raw);
       if (!raw) return false;
+
       const saved = JSON.parse(raw);
-      const age = Date.now() - saved.ts;
-      if (age > 24 * 3600 * 1000) { this.clearAuth(); return false; }
-      if (!saved.token || !saved.refreshToken) {
-        console.warn("[3SON] Stored session missing token or refreshToken");
-        this.clearAuth();
-        return false;
+      console.log("[3SON] saved token:", !!saved.token, "refreshToken:", !!saved.refreshToken, "age:", ((Date.now() - saved.ts) / 1000).toFixed(0) + "s");
+
+      if (Date.now() - saved.ts > 7 * 24 * 3600 * 1000) {
+        console.warn("[3SON] Session > 7 days old, clearing");
+        this.clearAuth(); return false;
       }
+
+      if (!saved.token) {
+        console.warn("[3SON] No token in saved session");
+        this.clearAuth(); return false;
+      }
+
       this._authToken = saved.token;
       this._user = saved.user;
 
-      try {
-        const userRes = await fetch(`${this.url}/auth/v1/user`, {
-          method: "GET",
-          headers: { "apikey": this.key, "Authorization": `Bearer ${saved.token}` }
+      const tryToken = async (token) => {
+        const res = await fetch(`${this.url}/rest/v1/pos_produk?select=id&limit=1`, {
+          headers: { "apikey": this.key, "Authorization": `Bearer ${token}` }
         });
-        if (userRes.ok) {
-          const user = await userRes.json();
-          this._user = user;
-          this.setAuth(saved.token, saved.refreshToken, user);
-        } else {
-          const result = await this._refreshToken(saved.refreshToken);
-          this.setAuth(result.access_token, result.refresh_token, this._user || result.user);
-        }
-      } catch (e) {
+        console.log("[3SON] Token test on REST API:", res.status, res.ok);
+        return res.ok;
+      };
+
+      const isTokenValid = await tryToken(saved.token);
+      if (isTokenValid) {
+        console.log("[3SON] Saved token valid, session restored");
+        this.setAuth(saved.token, saved.refreshToken, saved.user);
+        return true;
+      }
+
+      if (saved.refreshToken) {
         try {
+          console.log("[3SON] Trying refresh token...");
           const result = await this._refreshToken(saved.refreshToken);
+          console.log("[3SON] Refresh succeeded, new token obtained");
           this.setAuth(result.access_token, result.refresh_token, this._user || result.user);
-        } catch (e2) {
-          console.error("[3SON] Session restore failed, both token & refresh failed:", e2.message);
-          this.clearAuth();
-          return false;
+          return true;
+        } catch (e) {
+          console.error("[3SON] Refresh failed:", e.message);
         }
       }
-      return true;
+
+      console.error("[3SON] Session restore failed — both token & refresh failed");
+      this.clearAuth();
+      return false;
     } catch (e) {
-      console.error("[3SON] Session restore error:", e.message);
+      console.error("[3SON] Session restore crashed:", e.message);
       this.clearAuth();
       return false;
     }
